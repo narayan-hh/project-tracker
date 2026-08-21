@@ -1,0 +1,189 @@
+PROJECT TRACKER
+===============
+A local website. Nothing is online. Open index.html to start.
+
+
+THE SECTIONS (left menu)
+------------------------
+HOME           A summary of everything - open tasks, team progress,
+               upcoming reminders and total spend.
+MY TASKS       Three columns: Priority 1, 2 and 3.
+WEEKLY REVIEW  What moved, what slipped, who needs a conversation.
+TEAM MEMBERS   A card per person, with a progress meter.
+REMINDERS      Date, reminder, who, note. Overdue ones turn red.
+BUDGET         Date, Expense Title, Amount, Vendor, By (M4C emp),
+               Budget Head, Approved by.
+SETTINGS       (bottom) Spreadsheets, backups, site details.
+
+A red number next to Weekly Review is the count of things needing
+a look right now. When it is gone, nothing is overdue or stalled.
+
+
+KEYBOARD - THE FAST WAY TO WORK
+-------------------------------
+Ctrl+K   the jump box. Type a few letters of any task, goal, person,
+         reminder or expense and press Enter to go straight there.
+         It also runs actions - type "import", "csv", "reminder".
+/        the same jump box
+n        new item on whichever page you are on
+i        import a spreadsheet into this page
+g then h / t / w / m / r / b / s   go to Home, Tasks, Weekly review,
+         teaM, Reminders, Budget, Settings
+?        the full list of shortcuts
+Esc      close whatever is open
+
+
+MY TASKS
+--------
+Each task has a month, a name, a note, a due date and a status.
+Statuses: Not started / In progress / Completed.
+
+  - DRAG a card into another column to change its priority.
+    The P1/P2/P3 dropdown still works too.
+  - Due dates colour themselves: red once overdue, amber within
+    three days.
+  - Completed tasks drop to the bottom of their column.
+  - The filter bar searches, and narrows by month, status, or
+    "Overdue" only.
+
+
+WEEKLY REVIEW
+-------------
+Nothing to fill in - it is worked out from what you have already
+recorded. It gathers:
+
+  overdue tasks, tasks due in the next 7 days, what you finished
+  this week, overdue and upcoming reminders, goals marked at risk
+  or on hold, people with no check-in for 14+ days, goals with no
+  subtasks yet, and tasks with no due date.
+
+"Copy this review" puts it on the clipboard as plain text, ready to
+paste into an email or a message. "Print / save as PDF" gives a clean
+sheet with the menu and background stripped out, for a meeting.
+
+For "finished this week" to work, tasks need to be marked Completed
+in the app - that is when the date gets recorded.
+
+
+SPREADSHEETS - IMPORT AND EXPORT
+--------------------------------
+EVERY section has its own Import and Export buttons. You do not need
+to go to Settings. Press i on any page for the same thing.
+
+Import accepts:
+  - Excel .xlsx files, straight from your computer. No conversion
+    needed. If the file has several sheets you choose which one.
+  - .csv and .tsv files
+  - cells copied out of Excel and pasted into the box
+
+Drag a file onto the drop area, or click to choose one.
+
+Nothing is saved until you press the button. There are two, both
+saying the same thing: one at the bottom of the window that is always
+on screen, and one under the preview. It tells you what it will do -
+"Save 3 rows into Budget entries".
+
+Then, before anything is added, you get:
+  - a tick box for whether the first row is column headings
+  - a dropdown per field so you can correct what each column means
+    (it guesses first, and is usually right)
+  - a preview of the rows that will be added
+  - a choice: add to what is there, or replace the whole section
+  - a tick box to skip rows already in the tracker
+
+Your sheet should be laid out the normal way: the headings across the
+top row, and one record per row underneath. That is what it expects.
+
+Headings recognised automatically include: Month, Task, Name, Title,
+Status, Priority, Due date, Deadline, Date, Person, Owner, Who,
+Vendor, Supplier, Paid to, By, Expense by, Amount, Budget head,
+Approved by, Approver, Sanctioned by, Note, Objective, Timeline, Role.
+
+"By" and "Approved by" are told apart correctly, so a sheet with both
+columns maps the right way round.
+
+Dates are read in any of these forms: 2026-09-05, 05/09/2026,
+5-9-2026, 20-Aug-2026, and real Excel date cells. Day comes first
+in the slash form.
+
+Status words are read loosely. "done", "completed", "in progress",
+"ongoing", "not started", "yet to start" are all understood.
+
+sample-import.xlsx in this folder is a working example - two sheets,
+real date cells. Try importing it to see how it behaves.
+
+Export saves the section as a CSV that opens directly in Excel. Edit
+it there and import it back if that is easier than typing.
+
+
+EDITING
+-------
+Click almost any text and type. Editable text highlights on hover.
+Press Enter to finish. Everything saves as you go.
+
+DELETING gives you an Undo. Press the x, and a black bar appears at
+the bottom with an Undo button for a few seconds. Nothing asks "are
+you sure" any more except deleting a whole goal or team member, which
+takes a lot of work with it.
+
+
+BACKUPS - PLEASE READ
+---------------------
+Data is stored inside this browser, not in a file. So:
+  - use the same browser every time
+  - do not use a private / incognito window
+  - clearing "cookies and site data" will erase everything
+
+Settings -> Export backup saves a real .json file. Do this regularly.
+Settings -> Restore backup loads it back.
+
+If saving ever stops working, a red warning bar appears along the
+bottom of the screen. If you see it, export immediately.
+
+
+COLOURS
+-------
+style.css, at the top under :root
+  --sky-1 / --sky-2 / --sky-3   the background
+  --leaf-1 .. --leaf-4          the forest greens
+  --c1a / --c1b / --c1          card colour 1 (and so on up to c6)
+
+
+THE FILES
+---------
+index.html     the page itself; lists the files below
+style.css      layout, colours, buttons
+sections.css   the individual pages
+ambience.css   the forest, weather and animals
+enhance.css    toasts, windows, importer, review, filters
+
+ambience.js    draws the living forest
+data.js        what a task/goal/person is, saving, CSV reading
+ui.js          toasts, undo, the modal window
+xlsx.js        reads Excel .xlsx files, with no outside library
+importer.js    the import window, column matching, CSV export
+review.js      the weekly review and its workings
+views.js       most of the pages
+views2.js      newer My Tasks, Settings and Budget pages
+app.js         the menu, routing, and the original buttons
+actions2.js    the newer buttons, undo, drag and drop
+palette.js     the Ctrl+K jump box and shortcuts
+
+backup-original/ holds the four files as they were before this
+upgrade, in case you ever want to go back.
+
+
+BUDGET - THE COLUMNS
+--------------------
+Date            when the money was spent
+Expense Title   what it was for
+Amount          numbers only; ₹ signs and commas are stripped on import
+Vendor          the shop, supplier or person paid
+By (M4C emp)    which Mantra4change employee spent it
+Budget Head     chosen from the list at the bottom of the page
+Approved by     who approved it. Left blank it shows red as
+                "Not yet approved", and the tile at the top counts
+                how many are still waiting, with the total amount.
+
+Every cell is editable in place - click and type. The table scrolls
+sideways on a narrow screen instead of squashing the columns.

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Tracker</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="sections.css">
+<link rel="stylesheet" href="ambience.css">
+<link rel="stylesheet" href="enhance.css">
+</head>
+<body>
+
+<!-- The living forest. Everything inside is drawn by ambience.js -->
+<div class="world" id="world" aria-hidden="true"></div>
+
+<!-- The title, lettered across the sky above the treeline -->
+<div class="sky-title" id="skytitle" aria-hidden="true">
+  <h1 id="sky-h1">Project Tracker</h1>
+  <p id="sky-sub"></p>
+</div>
+
+<!-- ===== top bar: menu on the left, weather on the right ===== -->
+<header class="topbar">
+  <button class="burger" id="burger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <span class="brand">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21 3C10 3 3 9 3 18c0 1 0 2 .3 3 1-6 5-10 11-12-4 3-7 6-8 12 8 1 14-4 14-13V3z"/>
+    </svg>
+    Project Tracker
+  </span>
+  <span class="spacer"></span>
+  <div class="fxbar" id="fxbar"></div>
+</header>
+
+<!-- ===== full-screen shell: menu on the left, page on the right ===== -->
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main id="view" class="view"></main>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<!-- Near trees, animals and weather — drawn IN FRONT of the pages -->
+<div class="foreground" id="foreground" aria-hidden="true"></div>
+
+<script src="ambience.js"></script>
+<script src="data.js"></script>
+<script src="ui.js"></script>
+<script src="xlsx.js"></script>
+<script src="importer.js"></script>
+<script src="review.js"></script>
+<script src="views.js"></script>
+<script src="views2.js"></script>
+<script src="app.js"></script>
+<script src="actions2.js"></script>
+<script src="palette.js"></script>
+</body>
+</html>

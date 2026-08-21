@@ -1,0 +1,336 @@
+/* ==========================================================
+   Project Tracker — the newer pieces
+   Toasts, modal, importer, jump box, weekly review,
+   task dates, drag and drop, filters, printing.
+   Uses the same colours and radii as style.css.
+   ========================================================== */
+
+/* ==========================================================
+   TOASTS
+   ========================================================== */
+.toasts{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  z-index:1100;display:flex;flex-direction:column;gap:9px;align-items:center;
+  pointer-events:none;
+}
+.toast{
+  pointer-events:auto;display:flex;align-items:center;gap:12px;
+  background:#232649;color:#fff;border-radius:13px;
+  padding:11px 12px 11px 17px;font-size:13.5px;
+  box-shadow:0 14px 34px rgba(24,26,54,.32);
+  animation:toastIn .26s cubic-bezier(.2,.9,.3,1.2) both;
+  max-width:min(92vw,520px);
+}
+.toast.warn{background:#8a5a12}
+.toast.out{animation:toastOut .2s ease both}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px) scale(.97)}}
+.toast .tx{flex:1;min-width:0}
+.toast-undo{
+  background:rgba(255,255,255,.16);color:#fff;border:none;cursor:pointer;
+  font:inherit;font-weight:600;padding:5px 12px;border-radius:8px;transition:background .15s;
+}
+.toast-undo:hover{background:rgba(255,255,255,.3)}
+.toast-x{
+  background:none;border:none;color:rgba(255,255,255,.62);cursor:pointer;
+  font-size:19px;line-height:1;padding:0 4px;
+}
+.toast-x:hover{color:#fff}
+
+/* ==========================================================
+   MODAL
+   ========================================================== */
+/* above the storage / error bars, which are fixed to the bottom at
+   z-index 999 and 1000 and would otherwise cover the Save button */
+.modal-wrap{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:22px}
+.modal-back{position:absolute;inset:0;background:rgba(28,30,58,.5);backdrop-filter:blur(3px);opacity:0;transition:opacity .2s}
+.modal-wrap.in .modal-back{opacity:1}
+.modal{
+  position:relative;background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--lift);width:min(620px,100%);max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;transform:translateY(14px) scale(.97);
+  transition:opacity .22s ease,transform .22s cubic-bezier(.2,.9,.3,1.15);
+}
+.modal.wide{width:min(880px,100%)}
+.modal-wrap.in .modal{opacity:1;transform:none}
+.modal-head{
+  display:flex;align-items:center;gap:12px;padding:16px 18px;
+  border-bottom:1px solid var(--line);background:var(--mist);flex:none;
+}
+.modal-head h2{margin:0;font-size:16px;flex:1}
+.modal-x{background:none;border:none;font-size:24px;line-height:1;cursor:pointer;color:var(--ink-soft);padding:0 4px}
+.modal-x:hover{color:var(--ink)}
+/* min-height:0 matters: without it a flex item refuses to shrink below
+   its content, the window grows past max-height, and the footer with the
+   Import button gets clipped off the bottom. */
+.modal-body{padding:18px;overflow:auto;flex:1 1 auto;min-height:0}
+.modal-foot{
+  display:flex;align-items:center;gap:10px;padding:13px 18px;
+  border-top:1px solid var(--line);background:var(--mist);flex:none;flex-wrap:wrap;
+}
+.modal-foot .spacer{flex:1}
+
+/* ==========================================================
+   IMPORTER
+   ========================================================== */
+.dropzone{
+  border:2px dashed var(--line);border-radius:var(--radius);
+  padding:26px 18px;text-align:center;cursor:pointer;
+  background:var(--mist);color:var(--ink-soft);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:border-color .18s,background .18s,transform .18s;
+}
+.dropzone:hover,.dropzone:focus-visible{border-color:var(--leaf-3);background:#f3f8f5;outline:none}
+.dropzone.over{border-color:var(--leaf-1);background:#eaf4ee;transform:scale(1.01)}
+.dropzone b{color:var(--ink);font-size:14.5px}
+.dropzone span{font-size:12.5px}
+.dropzone svg{color:var(--leaf-2)}
+
+.imp-paste{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 13px}
+.imp-paste summary{cursor:pointer;font-size:13px;color:var(--accent);font-weight:600}
+.imp-paste textarea{
+  width:100%;margin-top:10px;font-family:Consolas,monospace;font-size:12.5px;
+  border:1px solid var(--line);border-radius:10px;padding:9px;resize:vertical;
+}
+.imp-loaded{margin-top:16px;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:9px}
+/* label above the dropdown, so neither gets cut off */
+.map-row{
+  display:flex;flex-direction:column;align-items:stretch;gap:5px;
+  background:var(--mist);border:1px solid var(--line);
+  border-radius:11px;padding:8px 11px;
+}
+/* labels wrap instead of being cut off - "By (M4C emp)" needs the room */
+.map-lab{
+  width:auto;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-soft);white-space:normal;line-height:1.3;overflow-wrap:break-word;
+}
+.map-lab em{color:#b03a55;font-style:normal}
+/* .mini-sel caps selects at 120px, which cuts the column names off */
+.map-sel{
+  width:100%;max-width:none;min-width:0;
+  font-size:12.5px;padding:5px 8px;color:var(--ink);
+}
+
+.check{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;margin-right:14px}
+.check input{cursor:pointer}
+.imp-foot-note{font-size:12.5px;color:var(--ink-soft)}
+.ok-inline{color:#1f7a55;font-size:13px;margin:0 0 6px}
+.warn-inline{color:#96660f;font-size:13px;margin:0 0 6px}
+
+/* ==========================================================
+   JUMP BOX (Ctrl+K)
+   ========================================================== */
+.pal-wrap{position:fixed;inset:0;z-index:1300;display:flex;align-items:flex-start;justify-content:center;padding:12vh 18px 18px}
+.pal-back{position:absolute;inset:0;background:rgba(28,30,58,.46);backdrop-filter:blur(3px);opacity:0;transition:opacity .18s}
+.pal-wrap.in .pal-back{opacity:1}
+.pal{
+  position:relative;width:min(660px,100%);background:var(--card);
+  border-radius:16px;box-shadow:var(--lift);overflow:hidden;
+  display:flex;flex-direction:column;max-height:70vh;
+  opacity:0;transform:translateY(-12px) scale(.98);
+  transition:opacity .18s,transform .18s cubic-bezier(.2,.9,.3,1.15);
+}
+.pal-wrap.in .pal{opacity:1;transform:none}
+.pal-top{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.pal-top svg{color:var(--ink-soft);flex:none}
+.pal-top input{flex:1;border:none;outline:none;font:inherit;font-size:15px;background:none;color:var(--ink)}
+.pal-list{overflow:auto;flex:1 1 auto;min-height:0;padding:6px}
+.pal-row{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  background:none;border:none;font:inherit;cursor:pointer;
+  padding:8px 11px;border-radius:10px;color:var(--ink);
+}
+.pal-row.on{background:var(--mist)}
+.pal-kind{
+  flex:none;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  padding:3px 8px;border-radius:6px;background:#eceff9;color:#5a63a0;
+}
+.pal-kind.k-do{background:#e7f6ee;color:#1f7a55}
+.pal-kind.k-page{background:#f0ebfc;color:#6249c2}
+.pal-kind.k-member{background:#fdf1e2;color:#a06a24}
+.pal-kind.k-goal{background:#e6f3f9;color:#256f88}
+.pal-label{flex:none;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-sub{flex:1;min-width:0;font-size:12px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.pal-empty{padding:22px;text-align:center;color:var(--ink-soft);font-size:13.5px}
+.pal-foot{display:flex;gap:16px;padding:9px 16px;border-top:1px solid var(--line);background:var(--mist);font-size:11.5px;color:var(--ink-soft)}
+kbd{
+  font:inherit;font-size:11px;background:#fff;border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--ink);
+}
+
+.sc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.sc-row{display:flex;align-items:center;gap:11px;padding:7px 11px;background:var(--mist);border-radius:10px;font-size:13px}
+.sc-row kbd{flex:none;min-width:74px;text-align:center}
+
+/* ==========================================================
+   WEEKLY REVIEW
+   ========================================================== */
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-top:16px}
+.rv{border-left:5px solid var(--line)}
+.rv.bad{border-left-color:#c9748c}
+.rv.warn{border-left-color:#d8a44a}
+.rv.good{border-left-color:#3d9c73}
+.rv-count{
+  font-size:12px;font-weight:700;background:#232649;color:#fff;
+  border-radius:999px;min-width:24px;padding:1px 8px;text-align:center;
+}
+.rv-count.zero{background:#dfe3f1;color:var(--ink-soft)}
+.rv-clear{color:var(--ink-soft);font-size:13px;margin:6px 0 0}
+.rv-pre{white-space:pre-wrap;font-family:Consolas,monospace;font-size:12.5px;margin:0}
+.mini-row.link{text-decoration:none;color:inherit;transition:background .15s;border-radius:8px}
+.mini-row.link:hover{background:var(--mist)}
+.tile.bad b{color:#b03a55}
+.tile.good b{color:#2f7d5b}
+
+/* the sidebar badge for things needing attention */
+.sb-badge{
+  margin-left:auto;font-size:11px;font-weight:700;background:#c9748c;color:#fff;
+  border-radius:999px;min-width:20px;padding:1px 7px;text-align:center;
+}
+
+/* ==========================================================
+   TASKS — dates, drag and drop, filters
+   ========================================================== */
+.tc-due{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;
+  color:var(--ink-soft);background:var(--mist);border:1px solid var(--line);
+  border-radius:999px;padding:2px 9px;
+}
+.tc-due.late{background:#fdeaef;color:#a9455f;border-color:#f4d2dc}
+.tc-due.soon{background:#fff4e3;color:#96660f;border-color:#f2dfbe}
+.tc-due input{border:none;background:none;font:inherit;color:inherit;width:96px;outline:none;cursor:pointer}
+
+.task-card{cursor:grab}
+.task-card.dragging{opacity:.4;transform:rotate(1.5deg) scale(.98)}
+.col.drop-target .col-body{background:rgba(95,83,196,.07);border-radius:12px;outline:2px dashed var(--accent);outline-offset:-5px}
+.task-card .grip{color:var(--line);cursor:grab;font-size:14px;letter-spacing:-1px}
+.task-card:hover .grip{color:var(--ink-soft)}
+
+.filters{
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:9px 13px;margin:14px 0 0;box-shadow:var(--shadow);
+}
+.filters .tb-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.f-search{
+  border:1px solid var(--line);border-radius:9px;padding:5px 11px;
+  font:inherit;font-size:13px;min-width:180px;outline:none;
+}
+.f-search:focus{border-color:var(--accent)}
+.f-chip{
+  border:1px solid var(--line);background:#fff;border-radius:999px;
+  padding:4px 12px;font-size:12.5px;cursor:pointer;font:inherit;color:var(--ink);
+  transition:all .15s;
+}
+.f-chip:hover{border-color:var(--leaf-3)}
+.f-chip.on{background:var(--leaf-1);border-color:var(--leaf-1);color:#fff}
+
+/* ==========================================================
+   PRINTING — a clean sheet for review meetings
+   ========================================================== */
+@media print{
+  .world,.foreground,.sky-title,.topbar,.sidebar,.scrim,.toolbar,
+  .toasts,.modal-wrap,.pal-wrap,.filters,.foot,.banner .trees,
+  .banner .firefly,.banner .leaf,.banner .mist{display:none !important}
+  body{overflow:visible;background:#fff}
+  .shell,.view{display:block;overflow:visible;height:auto;position:static}
+  .view{padding:0}
+  .page{max-width:100%}
+  .panel,.tile,.rv{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .rv-grid,.tiles{display:block}
+  .rv,.tile{margin-bottom:10px}
+  .banner{background:none;border:none;padding:0;min-height:0}
+  h1{font-size:20px}
+}
+
+/* ==========================================================
+   Gentler page changes
+   ========================================================== */
+.view{transition:opacity .16s ease}
+.view-out{opacity:0}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+/* ==========================================================
+   BUDGET TABLE — seven columns, so it scrolls sideways
+   rather than squashing
+   ========================================================== */
+.budget-table{min-width:1000px}
+.budget-table td:nth-child(2){min-width:190px}
+.budget-table td:nth-child(4),
+.budget-table td:nth-child(5),
+.budget-table td:nth-child(7){min-width:130px}
+/* an expense with nobody named against it */
+.budget-table td.needs-ok [contenteditable]{color:#a9455f}
+.budget-table td.needs-ok::before{
+  content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:#c9748c;margin-right:7px;vertical-align:middle;
+}
+
+/* the small note line under a task name */
+.tc-note{
+  margin:2px 0 8px;font-size:12.5px;color:var(--ink-soft);
+  min-height:18px;line-height:1.45;
+}
+
+/* ==========================================================
+   IMPORT WINDOW — the save row inside the window itself,
+   so the button is on screen without having to scroll,
+   and the footer is never the only way to finish.
+   ========================================================== */
+.imp-actions{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
+}
+.btn.big{font-size:14.5px;padding:10px 20px;border-radius:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.imp-actions .hint{font-size:12.5px;color:var(--ink-soft)}
+
+/* once a file has been read, the drop area steps out of the way
+   so the mapping, preview and save button all fit on screen */
+.dropzone.slim{padding:11px 14px;flex-direction:row;gap:10px;flex-wrap:wrap}
+.dropzone.slim svg{width:18px;height:18px}
+.dropzone.slim b{font-size:13px}
+.dropzone.slim span{font-size:11.5px}
+
+/* the footer stays put even when the body scrolls */
+.modal-foot{position:relative;z-index:2}
+
+/* ==========================================================
+   THE GREEN BUTTON
+   ----------------------------------------------------------
+   This used to be ".btn leaf". That was a bad name: .leaf is
+   also the falling-leaf decoration, which style.css positions
+   absolutely and sections.css marks
+       pointer-events: none !important
+   so that scenery never swallows a click. An !important rule
+   cannot be outranked, so every green button in the app was
+   unclickable by mouse - including Save in the import window.
+   Renamed to .green, which nothing else uses.
+   ========================================================== */
+.btn.green{
+  background:var(--leaf-1);border-color:var(--leaf-1);color:#fff;
+  position:relative;pointer-events:auto;animation:none;opacity:1;
+}
+.btn.green:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.btn.green:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:none}
+
+/* belt and braces: if any old markup still says "btn leaf",
+   make it behave like a button rather than a falling leaf */
+.btn.leaf{
+  position:relative;inset:auto;animation:none;opacity:1;
+  transform:none;width:auto;
+  pointer-events:auto !important;
+  background:var(--leaf-1);border-color:var(--leaf-1);color:#fff;
+}
+
+/* the Settings page reuses .map-row for its section list, where the
+   label and the two buttons belong side by side */
+.t-set .map-row{flex-direction:row;align-items:center;gap:9px}
+.t-set .map-lab{text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
