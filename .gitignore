@@ -1,0 +1,3 @@
+# Holds the shared token for the Apps Script budget endpoint.
+# Keep it off GitHub so the repo stays safe to publish.
+budget-sync.gs

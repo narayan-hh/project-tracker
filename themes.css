@@ -1,0 +1,618 @@
+/* ==========================================================
+   THEMES — twelve worlds, one at a time.
+
+   Each body.theme-* block does two jobs:
+     1. re-colours the UI through the shared variables
+     2. styles its own scene inside .theme-scene / .theme-fg
+
+   The original forest only shows under .theme-forest.
+   ========================================================== */
+
+.theme-scene,.theme-fg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.theme-scene *,.theme-fg *{pointer-events:none}
+
+/* every theme except Forest puts the forest away */
+body:not(.theme-forest) .scene,
+body:not(.theme-forest) .fg-scene,
+body:not(.theme-forest) .cloud,
+body:not(.theme-forest) .sun-orb,
+body:not(.theme-forest) .rays,
+body:not(.theme-forest) .bloom,
+body:not(.theme-forest) .storm-deck,
+body:not(.theme-forest) .tint,
+body:not(.theme-forest) .weather,
+body:not(.theme-forest) .sunbeam,
+body:not(.theme-forest) .wmist{opacity:0 !important;visibility:hidden}
+
+body{transition:background 1s ease,color .6s ease}
+
+/* the sky title sits over wildly different skies, so it needs a shadow */
+body:not(.theme-forest) .sky-title h1{
+  color:var(--sky-ink,var(--ink));
+  text-shadow:0 2px 18px var(--sky-shadow,rgba(0,0,0,.28));
+}
+
+/* shared vignette used by several scenes */
+.t-vignette{position:absolute;inset:0;
+  background:radial-gradient(115% 85% at 50% 45%,transparent 46%,rgba(0,0,0,.26) 100%)}
+.t-vignette.soft{background:radial-gradient(120% 90% at 50% 45%,transparent 58%,rgba(0,0,0,.14) 100%)}
+.t-vignette.warm{background:radial-gradient(115% 85% at 50% 50%,transparent 46%,rgba(58,20,0,.24) 100%)}
+.t-vignette.hard{background:radial-gradient(105% 78% at 50% 45%,transparent 38%,rgba(0,0,0,.38) 100%)}
+
+/* ==========================================================
+   THE BUTTON BAR  (twelve of them, so it scrolls)
+   ========================================================== */
+.fxbar.themebar{
+  display:flex;align-items:center;gap:4px;flex-wrap:nowrap;
+  overflow-x:auto;overflow-y:hidden;max-width:min(76vw,980px);
+  scrollbar-width:thin;padding:3px 1px;
+}
+.fxbar.themebar::-webkit-scrollbar{height:5px}
+.fxbar.themebar::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+.fxbar.themebar .fxbtn{flex:none;white-space:nowrap}
+
+.fxbtn.on[data-theme="dark"]       {background:#141a2b}
+.fxbtn.on[data-theme="digital"]    {background:#0c6b7a}
+.fxbtn.on[data-theme="forest"]     {background:#2f6b52}
+.fxbtn.on[data-theme="racing"]     {background:#c22b28}
+.fxbtn.on[data-theme="city"]       {background:#3c4a6b}
+.fxbtn.on[data-theme="minimal"]    {background:#5b5f66}
+.fxbtn.on[data-theme="home"]       {background:#a9682f}
+.fxbtn.on[data-theme="travel"]     {background:#1f7fb8}
+.fxbtn.on[data-theme="village"]    {background:#8a6a2f}
+.fxbtn.on[data-theme="military"]   {background:#4a5b33}
+.fxbtn.on[data-theme="artistic"]   {background:#b8447e}
+.fxbtn.on[data-theme="indianmusic"]{background:#a8471b}
+
+@media(max-width:1500px){.fxbar.themebar .fxbtn span{display:none}
+  .fxbar.themebar .fxbtn{padding:7px 9px}}
+@media(max-width:640px){.fxbar.themebar{max-width:56vw}}
+
+/* ==========================================================
+   1. DARK — a clear night over quiet hills
+   ========================================================== */
+body.theme-dark{
+  --sky-1:#0a0e1a; --sky-2:#101728; --sky-3:#161d31;
+  --bg-2:#0d1322; --mist:#1a2237;
+  --card:#171f33; --ink:#e6eaf6; --ink-soft:#98a1bd;
+  --line:#2b3550; --accent:#7c8cf8;
+  --shadow:0 2px 14px rgba(0,0,0,.5); --lift:0 18px 40px rgba(0,0,0,.6);
+  --sky-ink:#dfe6ff; --sky-shadow:rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+body.theme-dark .t-nightglow{position:absolute;inset:0;
+  background:radial-gradient(120% 80% at 78% 6%,rgba(86,104,180,.34),transparent 58%),
+             radial-gradient(90% 60% at 20% 100%,rgba(30,44,80,.6),transparent 70%)}
+body.theme-dark .t-stars{position:absolute;inset:0}
+.t-star{position:absolute;border-radius:50%;background:#fff;
+  box-shadow:0 0 6px rgba(255,255,255,.85);animation:tTwinkle ease-in-out infinite}
+@keyframes tTwinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+.t-shoot{position:absolute;width:120px;height:1.5px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#fff);opacity:0;
+  animation:tShoot 19s linear infinite}
+@keyframes tShoot{
+  0%,92%{opacity:0;transform:translate(0,0) rotate(18deg)}
+  93%{opacity:1}
+  99%,100%{opacity:0;transform:translate(46vw,20vh) rotate(18deg)}}
+.t-moon{position:absolute;top:8%;right:11%;width:104px;height:104px;border-radius:50%;
+  background:radial-gradient(circle at 35% 32%,#fdfbf2,#e5e6ee 62%,#c9ccdd);
+  box-shadow:0 0 60px 18px rgba(206,216,255,.28),inset -8px -6px 20px rgba(120,128,160,.35);
+  animation:tMoonRise 40s ease-in-out infinite}
+@keyframes tMoonRise{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.t-moon-sea{position:absolute;border-radius:50%;background:rgba(150,157,186,.42)}
+.t-moon-sea.a{width:26px;height:22px;top:26%;left:22%}
+.t-moon-sea.b{width:17px;height:15px;top:56%;left:56%}
+.t-hills{position:absolute;left:0;bottom:0;width:100%}
+.t-hills.far {height:44vh;fill:#131b30;opacity:.95}
+.t-hills.near{height:32vh;fill:#0a1122}
+
+/* ==========================================================
+   2. DIGITAL — server room, falling code, grid floor
+   ========================================================== */
+body.theme-digital{
+  --sky-1:#03131b; --sky-2:#05202c; --sky-3:#062a38;
+  --bg-2:#041a24; --mist:#0a2b38;
+  --card:#0a2532; --ink:#d8f7ff; --ink-soft:#79b8c9;
+  --line:#12475a; --accent:#22d3ee;
+  --shadow:0 2px 14px rgba(0,0,0,.5); --lift:0 18px 40px rgba(0,255,255,.10);
+  --sky-ink:#8ff3ff; --sky-shadow:rgba(0,220,255,.45);
+  color-scheme:dark;
+}
+body.theme-digital .t-datafall{position:absolute;inset:0;overflow:hidden;
+  font-family:"Consolas","Courier New",monospace;font-weight:700;line-height:1.15}
+.t-code{position:absolute;top:-120%;color:#31e6b6;text-shadow:0 0 8px rgba(49,230,182,.75);
+  white-space:nowrap;animation:tFall linear infinite}
+@keyframes tFall{from{transform:translateY(0)}to{transform:translateY(230vh)}}
+.t-gridfloor{position:absolute;left:-25%;right:-25%;bottom:0;height:46vh;
+  background:
+    repeating-linear-gradient(90deg,rgba(34,211,238,.26) 0 1px,transparent 1px 62px),
+    repeating-linear-gradient(0deg,rgba(34,211,238,.22) 0 1px,transparent 1px 44px);
+  transform:perspective(320px) rotateX(66deg);transform-origin:bottom;
+  mask-image:linear-gradient(0deg,#000,transparent 88%);
+  -webkit-mask-image:linear-gradient(0deg,#000,transparent 88%)}
+.t-scan{position:absolute;left:0;right:0;height:180px;
+  background:linear-gradient(180deg,transparent,rgba(34,211,238,.16),transparent);
+  animation:tScan 7s linear infinite}
+@keyframes tScan{from{top:-180px}to{top:100%}}
+.t-node{position:absolute;width:7px;height:7px;border-radius:50%;background:#22d3ee;
+  box-shadow:0 0 16px 4px rgba(34,211,238,.65);animation:tPulseNode 4s ease-in-out infinite}
+@keyframes tPulseNode{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.4)}}
+.t-neonwash{position:absolute;inset:0;
+  background:radial-gradient(90% 60% at 50% 108%,rgba(34,211,238,.22),transparent 62%)}
+.t-scanlines{position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.10) 0 1px,transparent 1px 4px)}
+
+/* ==========================================================
+   3. FOREST — the original world, untouched
+   ========================================================== */
+body.theme-forest{ --sky-ink:var(--ink); --sky-shadow:rgba(255,255,255,.5); }
+
+/* ==========================================================
+   4. RACING — a circuit at speed
+   ========================================================== */
+body.theme-racing{
+  --sky-1:#1d2430; --sky-2:#2a323f; --sky-3:#38414f;
+  --bg-2:#222a36; --mist:#eef1f6;
+  --card:#f7f8fa; --ink:#171c25; --ink-soft:#5c6470;
+  --line:#d3d8e0; --accent:#d92b25;
+  --sky-ink:#fff; --sky-shadow:rgba(0,0,0,.55);
+}
+.t-r-sky{position:absolute;inset:0;
+  background:linear-gradient(180deg,#20293a 0%,#3c4657 42%,#5d6472 66%)}
+.t-stand{position:absolute;left:0;top:26%;width:100%;height:26vh;fill:#252d3b}
+.t-crowd{position:absolute;left:0;top:27%;width:100%;height:22vh}
+.t-crowd i{position:absolute;width:5px;height:5px;border-radius:50%;opacity:.72;
+  animation:tCheer 2.4s ease-in-out infinite}
+@keyframes tCheer{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.t-flags{position:absolute;left:0;top:23%;width:100%;height:40px}
+.t-flags i{position:absolute;top:0;width:20px;height:13px;
+  background:repeating-conic-gradient(#fff 0 25%,#111 0 50%);background-size:7px 7px;
+  transform-origin:left center;animation:tFlag 1.7s ease-in-out infinite}
+@keyframes tFlag{0%,100%{transform:skewX(0) scaleX(1)}50%{transform:skewX(-16deg) scaleX(.86)}}
+.t-asphalt{position:absolute;left:-20%;right:-20%;bottom:0;height:52vh;
+  background:linear-gradient(180deg,#4a4f57 0%,#33373d 30%,#22252a 100%);
+  transform:perspective(420px) rotateX(64deg);transform-origin:bottom;overflow:hidden}
+.t-lanes{position:absolute;left:50%;top:0;bottom:0;width:16px;transform:translateX(-50%)}
+.t-lane{position:absolute;left:0;width:16px;height:78px;border-radius:3px;
+  background:rgba(255,255,255,.86);animation:tLane 1.15s linear infinite}
+@keyframes tLane{from{top:-90px}to{top:120%}}
+.t-checker{position:absolute;left:0;right:0;bottom:0;height:22px;
+  background:repeating-conic-gradient(#f2f2f2 0 25%,#15181d 0 50%);background-size:24px 24px}
+.t-speed{position:absolute;inset:0}
+.t-streak{position:absolute;right:-320px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#fff);animation:tStreak linear infinite}
+@keyframes tStreak{from{transform:translateX(0)}to{transform:translateX(-140vw)}}
+
+/* ==========================================================
+   5. CITY — dusk skyline, lit windows, traffic below
+   ========================================================== */
+body.theme-city{
+  --sky-1:#2b2a48; --sky-2:#48405e; --sky-3:#6b5468;
+  --bg-2:#332f4e; --mist:#4a4360;
+  --card:#1e2436; --ink:#e9ecf7; --ink-soft:#9aa2bd;
+  --line:#333c55; --accent:#f4a340;
+  --shadow:0 2px 14px rgba(0,0,0,.45); --lift:0 18px 40px rgba(0,0,0,.55);
+  --sky-ink:#ffe9c9; --sky-shadow:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+.t-dusk{position:absolute;inset:0;
+  background:linear-gradient(180deg,#1b1c33 0%,#3a3055 34%,#7d4f5e 62%,#d78a52 86%,#f0b06a 100%)}
+.t-citysun{position:absolute;bottom:18vh;left:64%;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,#fff2c4,#f6a94f 58%,rgba(240,140,70,0) 74%);
+  filter:blur(1px);animation:tSunSet 60s ease-in-out infinite}
+@keyframes tSunSet{0%,100%{transform:translateY(0)}50%{transform:translateY(22px)}}
+.t-blink{position:absolute;left:-4%;width:5px;height:5px;border-radius:50%;background:#ff5f5f;
+  box-shadow:0 0 10px 3px rgba(255,95,95,.7);animation:tCross linear infinite}
+@keyframes tCross{from{transform:translateX(0)}to{transform:translateX(112vw)}}
+.t-skyline{position:absolute;left:0;right:0;bottom:0;height:100%}
+.t-tower{position:absolute;bottom:0;border-radius:3px 3px 0 0;
+  box-shadow:inset 0 22px 40px rgba(0,0,0,.35)}
+.t-wins{position:absolute;inset:9px 6px 12px;display:grid;gap:4px 5px;align-content:start}
+.t-wins i{display:block;height:5px;border-radius:1px;background:rgba(255,255,255,.05)}
+.t-wins i.lit{background:#ffd489;box-shadow:0 0 7px rgba(255,212,137,.85);
+  animation:tWindow 9s ease-in-out infinite}
+@keyframes tWindow{0%,88%,100%{opacity:.95}92%{opacity:.25}}
+.t-haze{position:absolute;left:0;right:0;bottom:0;height:34vh;
+  background:linear-gradient(0deg,rgba(240,176,106,.28),transparent)}
+.t-street{position:absolute;left:0;right:0;bottom:0;height:56px;
+  background:linear-gradient(0deg,rgba(10,12,20,.9),transparent)}
+.t-car{position:absolute;left:-8%;width:38px;height:3px;border-radius:3px;
+  background:linear-gradient(90deg,rgba(255,235,180,0),#fff0c0);
+  box-shadow:0 0 12px 3px rgba(255,220,150,.55);animation:tCarGo linear infinite}
+.t-car.back{background:linear-gradient(270deg,rgba(255,120,110,0),#ff7b6e);
+  box-shadow:0 0 12px 3px rgba(255,110,100,.5);animation-name:tCarBack}
+@keyframes tCarGo{from{transform:translateX(0)}to{transform:translateX(120vw)}}
+@keyframes tCarBack{from{transform:translateX(120vw)}to{transform:translateX(0)}}
+
+/* ==========================================================
+   6. MINIMALIST — paper, one line, nothing moving
+   ========================================================== */
+body.theme-minimal{
+  --sky-1:#fafaf8; --sky-2:#f5f5f2; --sky-3:#f0f0ec;
+  --bg-2:#eeeeea; --mist:#f7f7f4;
+  --card:#ffffff; --ink:#1b1b1a; --ink-soft:#77776f;
+  --line:#e2e2dc; --accent:#3a3a38;
+  --shadow:0 1px 3px rgba(0,0,0,.05); --lift:0 8px 24px rgba(0,0,0,.08);
+  --radius:6px;
+  --sky-ink:#22221f; --sky-shadow:rgba(0,0,0,.06);
+}
+.t-paper{position:absolute;inset:0;background:#faf9f6}
+.t-rule{position:absolute;left:8%;right:8%;top:52%;height:1px;background:#e0dfd8}
+.t-dot{position:absolute;left:8%;top:calc(52% - 3px);width:7px;height:7px;border-radius:50%;
+  background:#c9c8c0}
+body.theme-minimal .fxbtn{border-radius:5px}
+
+/* ==========================================================
+   7. HOME — a warm room, lamp on, rain outside
+   ========================================================== */
+body.theme-home{
+  --sky-1:#efe2d2; --sky-2:#e7d6c2; --sky-3:#dfc9b1;
+  --bg-2:#e3d1bd; --mist:#f6ece0;
+  --card:#fffaf3; --ink:#3a2a1c; --ink-soft:#84705d;
+  --line:#e0cdb7; --accent:#c1712c;
+  --shadow:0 2px 12px rgba(90,60,30,.12); --lift:0 16px 38px rgba(90,60,30,.22);
+  --sky-ink:#4a3524; --sky-shadow:rgba(255,236,200,.7);
+}
+.t-wall{position:absolute;inset:0;
+  background:linear-gradient(180deg,#e9d7c2,#dcc4a9 62%,#cbae90);
+  box-shadow:inset 0 0 220px rgba(120,70,30,.28)}
+.t-window{position:absolute;left:8%;top:14%;width:26vw;min-width:230px;height:40vh;
+  border:12px solid #f4ead9;border-radius:8px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(80,50,20,.28),inset 0 0 40px rgba(60,80,110,.4)}
+.t-outside{position:absolute;inset:0;
+  background:linear-gradient(180deg,#5f7288,#7d8c9c 60%,#93a0a6)}
+.t-wrain{position:absolute;inset:0}
+.t-wrain i{position:absolute;top:-20%;width:1.5px;height:24px;border-radius:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(226,240,255,.85));
+  animation:tWRain linear infinite}
+@keyframes tWRain{from{transform:translateY(0)}to{transform:translateY(60vh)}}
+.t-mullion{position:absolute;background:#f4ead9}
+.t-mullion.v{left:50%;top:0;bottom:0;width:9px;margin-left:-4px}
+.t-mullion.h{top:50%;left:0;right:0;height:9px;margin-top:-4px}
+.t-lampglow{position:absolute;right:12%;top:6%;width:44vw;height:70vh;
+  background:radial-gradient(closest-side,rgba(255,206,128,.55),transparent 72%);
+  animation:tLamp 7s ease-in-out infinite}
+@keyframes tLamp{0%,100%{opacity:.85}50%{opacity:1}}
+.t-shelf{position:absolute;right:10%;top:34%;width:16vw;min-width:150px;height:11px;
+  background:#8b5e34;border-radius:2px;box-shadow:0 8px 18px rgba(60,35,10,.3)}
+.t-shelf i{position:absolute;bottom:11px;width:13px;height:44px;border-radius:2px 2px 0 0}
+.t-shelf i:nth-child(1){left:14%;height:50px;background:#9c3f3f}
+.t-shelf i:nth-child(2){left:26%;height:42px;background:#3f6b57}
+.t-shelf i:nth-child(3){left:37%;height:47px;background:#3f5580}
+.t-floor{position:absolute;left:0;right:0;bottom:0;height:24vh;
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 2px,transparent 2px 92px),
+    linear-gradient(180deg,#9a6a3c,#7c5330)}
+.t-plant{position:absolute;left:3%;bottom:2vh;width:150px;height:210px}
+.t-plant span{position:absolute;left:50%;bottom:0;width:15px;height:130px;
+  border-radius:60% 60% 8% 8%/80% 80% 8% 8%;background:#2f6b45;transform-origin:bottom center;
+  transform:rotate(var(--r));animation:tSway 6s ease-in-out infinite;
+  animation-delay:calc(var(--i) * -.55s)}
+@keyframes tSway{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+.t-lampcone{position:absolute;right:8%;top:0;width:30vw;height:76vh;
+  background:linear-gradient(196deg,rgba(255,214,140,.34),transparent 62%);
+  clip-path:polygon(46% 0,64% 0,100% 100%,0 100%)}
+
+/* ==========================================================
+   8. TRAVEL — high above the clouds
+   ========================================================== */
+body.theme-travel{
+  --sky-1:#bfe4fb; --sky-2:#8ecdf3; --sky-3:#c9e7f7;
+  --bg-2:#a9d9f2; --mist:#eaf6fd;
+  --card:#ffffff; --ink:#0e3550; --ink-soft:#5b7f99;
+  --line:#c3e0f0; --accent:#0f7fbf;
+  --sky-ink:#0b3a58; --sky-shadow:rgba(255,255,255,.75);
+}
+.t-highsky{position:absolute;inset:0;
+  background:linear-gradient(180deg,#2f7fc4 0%,#69b3e4 34%,#a9d8f2 62%,#e4f4fd 100%)}
+.t-sunhaze{position:absolute;top:-8%;left:8%;width:52vw;height:52vw;
+  background:radial-gradient(circle,rgba(255,252,232,.7),transparent 62%)}
+.t-tcloud{position:absolute;left:-24vw;width:300px;height:74px;border-radius:60px;
+  background:radial-gradient(closest-side,#fff,rgba(255,255,255,.72));
+  box-shadow:70px 12px 0 -8px rgba(255,255,255,.92),-64px 16px 0 -14px rgba(255,255,255,.85),
+             22px -22px 0 -18px rgba(255,255,255,.9);
+  filter:blur(.4px);animation:tDrift linear infinite}
+@keyframes tDrift{from{transform:translateX(0)}to{transform:translateX(150vw)}}
+.t-route{position:absolute;inset:0;width:100%;height:100%;fill:none;
+  stroke:rgba(255,255,255,.8);stroke-width:3;stroke-dasharray:11 13;stroke-linecap:round;
+  animation:tDash 3.4s linear infinite}
+@keyframes tDash{to{stroke-dashoffset:-48}}
+.t-plane{position:absolute;top:14%;left:-14%;width:74px;animation:tFly 26s linear infinite}
+.t-plane svg{width:74px;height:74px;fill:#f7fbff;filter:drop-shadow(0 5px 10px rgba(0,40,70,.35))}
+.t-trail{position:absolute;right:96%;top:46%;width:34vw;height:6px;border-radius:6px;
+  background:linear-gradient(270deg,rgba(255,255,255,.85),transparent);filter:blur(2.5px)}
+@keyframes tFly{from{transform:translate(0,0) rotate(-4deg)}
+  to{transform:translate(128vw,-9vh) rotate(-4deg)}}
+
+/* ==========================================================
+   9. VILLAGE — fields at dusk, huts, fireflies
+   ========================================================== */
+body.theme-village{
+  --sky-1:#f6dcb2; --sky-2:#eec18e; --sky-3:#d9a878;
+  --bg-2:#e8bc8c; --mist:#f8e8cf;
+  --card:#fffaf0; --ink:#3f2c15; --ink-soft:#856a45;
+  --line:#e2c9a4; --accent:#a8701f;
+  --sky-ink:#4a3115; --sky-shadow:rgba(255,238,200,.8);
+}
+.t-dusksky{position:absolute;inset:0;
+  background:linear-gradient(180deg,#4c5a86 0%,#a4738a 26%,#e79a63 54%,#f6c98a 76%,#e6b982 100%)}
+.t-vsun{position:absolute;bottom:26vh;left:26%;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,#fff6d8,#ffbc5c 60%,rgba(255,150,60,0) 76%)}
+.t-treeline{position:absolute;left:0;bottom:26vh;width:100%;height:20vh;fill:#3f4a3a;opacity:.92}
+.t-fields{position:absolute;left:-10%;right:-10%;bottom:0;height:30vh;overflow:hidden;
+  background:linear-gradient(180deg,#8d9c53,#6d7d3c 55%,#55642c)}
+.t-fields i{position:absolute;left:0;right:0;height:5px;background:rgba(0,0,0,.10);
+  animation:tRipple 6s ease-in-out infinite}
+@keyframes tRipple{0%,100%{transform:translateX(0)}50%{transform:translateX(14px)}}
+.t-hut{position:absolute;bottom:24vh;width:120px;height:104px;transform-origin:bottom center}
+.t-hut .roof{position:absolute;left:-8px;top:0;width:136px;height:52px;background:#8a5a2c;
+  clip-path:polygon(50% 0,100% 100%,0 100%);
+  box-shadow:0 5px 10px rgba(50,25,0,.28)}
+.t-hut .body{position:absolute;left:12px;top:50px;width:96px;height:54px;background:#d8b184;
+  border-radius:2px}
+.t-hut .door{position:absolute;left:48px;top:72px;width:24px;height:32px;background:#5c3c1e;
+  border-radius:12px 12px 0 0;box-shadow:0 0 14px rgba(255,190,90,.75)}
+.t-well{position:absolute;bottom:22vh;left:44%;width:64px;height:52px;
+  background:#7d7469;border-radius:6px 6px 3px 3px}
+.t-well span{position:absolute;left:6px;top:-14px;right:6px;height:14px;background:#5e4b30;
+  border-radius:3px}
+.t-flies{position:absolute;inset:0}
+.t-ffly2{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe98a;
+  box-shadow:0 0 12px 4px rgba(255,226,120,.75);
+  animation:tGlow 4.5s ease-in-out infinite,tWander 13s ease-in-out infinite}
+@keyframes tGlow{0%,100%{opacity:.1}50%{opacity:1}}
+@keyframes tWander{0%,100%{transform:translate(0,0)}
+  25%{transform:translate(26px,-18px)}50%{transform:translate(-16px,-32px)}
+  75%{transform:translate(20px,-12px)}}
+
+/* ==========================================================
+   10. MILITARY — camo, olive light, a sweeping searchlight
+   ========================================================== */
+body.theme-military{
+  --sky-1:#242b1a; --sky-2:#2e3722; --sky-3:#39432a;
+  --bg-2:#28301c; --mist:#eef0e4;
+  --card:#f1f0e4; --ink:#20250f; --ink-soft:#5f6647;
+  --line:#cdcdb8; --accent:#5c6b31;
+  --radius:4px;
+  --sky-ink:#e8ecd6; --sky-shadow:rgba(0,0,0,.6);
+}
+.t-camo{position:absolute;inset:0;background:#39432a;filter:blur(9px) saturate(.9)}
+.t-camo i{position:absolute;opacity:.9}
+.t-mgrid{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,rgba(190,200,160,.10) 0 1px,transparent 1px 80px),
+             repeating-linear-gradient(0deg,rgba(190,200,160,.10) 0 1px,transparent 1px 80px)}
+.t-sweep{position:absolute;left:50%;top:-40%;width:64vw;height:150vh;
+  transform-origin:top center;
+  background:linear-gradient(180deg,rgba(214,232,160,.20),transparent 66%);
+  clip-path:polygon(48% 0,52% 0,100% 100%,0 100%);
+  animation:tSweep 14s ease-in-out infinite}
+@keyframes tSweep{0%,100%{transform:translateX(-50%) rotate(-26deg)}
+  50%{transform:translateX(-50%) rotate(26deg)}}
+.t-ridge{position:absolute;left:0;bottom:0;width:100%;height:30vh;fill:#161c0d}
+.t-radar{position:absolute;right:6%;bottom:8%;width:130px;height:130px;border-radius:50%;
+  border:1px solid rgba(190,220,140,.5);overflow:hidden;
+  background:radial-gradient(circle,rgba(120,160,70,.18),transparent 72%)}
+.t-radar span{position:absolute;left:50%;top:50%;width:50%;height:1.5px;
+  background:linear-gradient(90deg,rgba(190,240,120,.95),transparent);transform-origin:left center;
+  animation:tRadar 3.6s linear infinite}
+.t-radar span.ping{width:8px;height:8px;border-radius:50%;background:#c8f07a;left:70%;top:34%;
+  animation:tPing 3.6s ease-out infinite;transform-origin:center}
+@keyframes tRadar{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes tPing{0%,60%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(2.2)}}
+.t-stencil{position:absolute;left:3%;bottom:3%;font:700 13px/1 "Consolas",monospace;
+  letter-spacing:4px;color:rgba(226,236,196,.5)}
+
+/* ==========================================================
+   11. ARTISTIC — canvas, wet paint, brush strokes
+   ========================================================== */
+body.theme-artistic{
+  --sky-1:#faf5ec; --sky-2:#f5ece0; --sky-3:#efe4d6;
+  --bg-2:#f2e8da; --mist:#fdf9f2;
+  --card:#fffdf9; --ink:#26212c; --ink-soft:#736b7e;
+  --line:#e6dccd; --accent:#c8437e;
+  --radius:22px;
+  --sky-ink:#2b2334; --sky-shadow:rgba(255,255,255,.7);
+}
+.t-canvas{position:absolute;inset:0;background:#f7f1e6}
+.t-splat{position:absolute;filter:blur(26px);opacity:.42;mix-blend-mode:multiply;
+  animation:tBreathe 16s ease-in-out infinite}
+@keyframes tBreathe{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.09) rotate(4deg)}}
+.t-stroke{position:absolute;height:22px;border-radius:14px;opacity:.34;filter:blur(3px);
+  animation:tBrush 12s ease-in-out infinite}
+@keyframes tBrush{0%,100%{opacity:.24}50%{opacity:.48}}
+.t-weave{position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(120,100,80,.055) 0 1px,transparent 1px 4px),
+             repeating-linear-gradient(90deg,rgba(120,100,80,.055) 0 1px,transparent 1px 4px)}
+
+/* ==========================================================
+   12. INDIAN MUSIC — a lamp-lit baithak, notes in the air
+   ========================================================== */
+body.theme-indianmusic{
+  --sky-1:#4a1410; --sky-2:#6d2313; --sky-3:#8e3a17;
+  --bg-2:#5c1a11; --mist:#fdf1e0;
+  --card:#fff6e6; --ink:#3d1508; --ink-soft:#8a5a34;
+  --line:#e8cfa6; --accent:#c2410c;
+  --sky-ink:#ffd9a0; --sky-shadow:rgba(90,20,0,.75);
+}
+.t-raga{position:absolute;inset:0;
+  background:radial-gradient(120% 90% at 50% 12%,#a8471b 0%,#7c2a12 42%,#4c1409 76%,#320c06 100%)}
+.t-mandala{position:absolute;left:50%;top:22%;width:0;height:0;opacity:.34;
+  animation:tSpin 90s linear infinite}
+.t-mandala i{position:absolute;left:-9px;width:18px;height:76px;border-radius:50% 50% 50% 50%;
+  border:1.5px solid rgba(255,214,150,.75);transform-origin:center bottom}
+.t-mandala .core{position:absolute;left:-26px;top:-26px;width:52px;height:52px;border-radius:50%;
+  border:2px solid rgba(255,222,160,.8);
+  box-shadow:0 0 30px rgba(255,190,110,.45),inset 0 0 20px rgba(255,190,110,.4)}
+@keyframes tSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.t-arch{position:absolute;left:0;right:0;top:0;height:34vh}
+.t-arch span{position:absolute;top:-14vh;width:19vw;height:34vh;
+  border:3px solid rgba(255,206,140,.30);border-radius:0 0 50% 50%/0 0 100% 100%;
+  border-top:none}
+.t-arch span:nth-child(1){left:6%}
+.t-arch span:nth-child(2){left:40%}
+.t-arch span:nth-child(3){left:74%}
+.t-notes{position:absolute;inset:0}
+.t-note{position:absolute;bottom:-8%;color:#ffdca6;
+  text-shadow:0 0 16px rgba(255,190,110,.7);animation:tRise linear infinite}
+@keyframes tRise{
+  0%{transform:translate(0,0) rotate(-8deg)}
+  50%{transform:translate(38px,-52vh) rotate(10deg)}
+  100%{transform:translate(-16px,-108vh) rotate(-6deg);opacity:0}}
+.t-tanpura{position:absolute;right:7%;bottom:0;height:64vh;width:auto;
+  fill:#5c2a12;opacity:.85;filter:drop-shadow(0 0 30px rgba(0,0,0,.45))}
+.t-tanpura .strings path{stroke:rgba(255,224,170,.75);stroke-width:1.2;fill:none;
+  animation:tString 2.6s ease-in-out infinite}
+@keyframes tString{0%,100%{opacity:.45}50%{opacity:1}}
+.t-diyas{position:absolute;left:0;right:0;bottom:0;height:90px}
+.t-diya{position:absolute;bottom:14px;width:44px;height:16px;border-radius:0 0 22px 22px;
+  background:linear-gradient(180deg,#8a4a20,#5e2f12);
+  box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.t-diya .flame{position:absolute;left:50%;bottom:12px;margin-left:-6px;width:12px;height:20px;
+  border-radius:50% 50% 50% 50%/62% 62% 38% 38%;
+  background:radial-gradient(circle at 50% 70%,#fff6c8,#ffb43f 52%,rgba(255,120,20,.2) 78%);
+  box-shadow:0 0 26px 10px rgba(255,168,60,.55);
+  animation:tFlame 1.5s ease-in-out infinite}
+@keyframes tFlame{0%,100%{transform:scale(1) skewX(0)}
+  35%{transform:scale(1.1,.94) skewX(-7deg)}70%{transform:scale(.94,1.1) skewX(6deg)}}
+
+/* ==========================================================
+   Dark-surface themes: make the page chrome follow along
+   ========================================================== */
+body.theme-dark,body.theme-digital,body.theme-city{
+  --c1a:#1b2c26; --c1b:#16241f; --c1:#6fd3a4;
+  --c2a:#182835; --c2b:#13202b; --c2:#67c2e0;
+  --c3a:#312619; --c3b:#261d13; --c3:#e0b06a;
+  --c4a:#241f3a; --c4b:#1c1830; --c4:#a394f5;
+  --c5a:#33202a; --c5b:#281922; --c5:#eb8ca7;
+  --c6a:#242b1a; --c6b:#1c2214; --c6:#b3cc76;
+}
+body.theme-dark .fxbtn,body.theme-digital .fxbtn,body.theme-city .fxbtn,
+body.theme-military .fxbtn,body.theme-indianmusic .fxbtn{
+  background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);color:rgba(255,255,255,.82)}
+body.theme-dark .fxbtn:hover,body.theme-digital .fxbtn:hover,body.theme-city .fxbtn:hover,
+body.theme-military .fxbtn:hover,body.theme-indianmusic .fxbtn:hover{color:#fff}
+
+/* people who ask for less motion get less motion */
+@media (prefers-reduced-motion: reduce){
+  .theme-scene *,.theme-fg *{animation:none !important}
+}
+
+/* ==========================================================
+   DARK SURFACES
+   Three themes paint on a dark ground, and the base stylesheets
+   have plenty of hard-coded white. Turn those surfaces over once,
+   here, instead of forking the other stylesheets.
+   ========================================================== */
+body:is(.theme-dark,.theme-digital,.theme-city){
+  --surf-1:rgba(255,255,255,.05);
+  --surf-2:rgba(255,255,255,.09);
+  --surf-3:rgba(255,255,255,.15);
+  --edge:rgba(255,255,255,.13);
+}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.topbar,.sidebar){
+  background:rgba(8,12,22,.72);border-color:var(--edge)}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.burger,.btn,.go-btn,.editnote,
+  select.status-sel,.mini-sel,.head-chip,.task){
+  background:var(--surf-2);border-color:var(--edge);color:var(--ink)}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.panel,.tile,.col,.lead,
+  .tcard,.pcard,.task-card,details.past){
+  background:rgba(255,255,255,.055);border-color:var(--edge);
+  backdrop-filter:blur(3px)}
+body:is(.theme-dark,.theme-digital,.theme-city) .col-head{
+  background:var(--surf-1);border-bottom-color:var(--edge)}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.sb-link:hover,.task:hover,
+  .grid-table tbody tr:hover){background:var(--surf-3)}
+body:is(.theme-dark,.theme-digital,.theme-city) .sb-link.active{
+  background:var(--surf-3);box-shadow:none}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.tcard,.pcard,.lead):hover .go-btn{
+  background:var(--surf-3);box-shadow:none}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.banner .pill,.tcard .pills li){
+  background:var(--surf-2);border-color:var(--edge);color:var(--ink-soft)}
+body:is(.theme-dark,.theme-digital,.theme-city) .grid-table td{
+  border-bottom-color:rgba(255,255,255,.09)}
+body:is(.theme-dark,.theme-digital,.theme-city) .empty{background:var(--surf-1)}
+body:is(.theme-dark,.theme-digital,.theme-city) [data-edit]:hover{
+  background:var(--surf-2);box-shadow:0 0 0 3px var(--surf-1)}
+body:is(.theme-dark,.theme-digital,.theme-city) [data-edit]:focus{
+  background:rgba(0,0,0,.35);box-shadow:0 0 0 2px var(--accent)}
+body:is(.theme-dark,.theme-digital,.theme-city) [data-edit]:empty::before{
+  color:rgba(255,255,255,.34)}
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.status,.chip){
+  filter:saturate(.85) brightness(.92)}
+
+/* Military and Indian music keep light cards, but their chrome is dark */
+body:is(.theme-military,.theme-indianmusic) :is(.topbar,.sidebar){
+  background:rgba(20,16,8,.55);border-color:rgba(255,255,255,.14)}
+body:is(.theme-military,.theme-indianmusic) .sb-link{color:#f4efe0}
+body:is(.theme-military,.theme-indianmusic) .sb-link:hover{background:rgba(255,255,255,.14)}
+body:is(.theme-military,.theme-indianmusic) .sb-link.active{background:rgba(255,255,255,.20)}
+body:is(.theme-military,.theme-indianmusic) .burger{
+  background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
+body:is(.theme-military,.theme-indianmusic) .brand{color:#f6f0e2}
+
+/* ==========================================================
+   FIXES FOUND BY LOOKING AT THE THEMES
+   ========================================================== */
+
+/* 1. The toolbar was still painting itself white on dark grounds. */
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.toolbar,.filters){
+  background:rgba(9,14,24,.72);border-color:var(--edge)}
+body:is(.theme-dark,.theme-digital,.theme-city) .f-search{
+  background:var(--surf-2);border-color:var(--edge);color:var(--ink)}
+
+/* 2. Cards were so sheer that the scenery read straight through the text.
+      A dark ground under the same borders keeps the mood and the words. */
+body:is(.theme-dark,.theme-digital,.theme-city) :is(.panel,.tile,.col,.lead,
+  .tcard,.pcard,.task-card,details.past){
+  background:rgba(9,14,24,.80);backdrop-filter:blur(6px)}
+body.theme-digital :is(.panel,.tile,.col,.lead,.tcard,.pcard,.task-card,details.past){
+  background:rgba(4,20,28,.84)}
+body.theme-city :is(.panel,.tile,.col,.lead,.tcard,.pcard,.task-card,details.past){
+  background:rgba(16,20,34,.82)}
+
+/* 3. The sidebar heading is dark ink, which vanished on the dark chrome. */
+body:is(.theme-military,.theme-indianmusic) .sb-head{
+  border-bottom-color:rgba(255,255,255,.16)}
+body:is(.theme-military,.theme-indianmusic) .sb-head h2{color:#f8f2e4}
+body:is(.theme-military,.theme-indianmusic) :is(.sb-head p,.sb-label){
+  color:rgba(248,242,228,.62)}
+body:is(.theme-dark,.theme-digital,.theme-city) .sb-head{
+  border-bottom-color:var(--edge)}
+
+/* 4. Home put its window and its plant behind the menu rail.
+      Both now start clear of it. */
+body.theme-home .t-window{left:calc(var(--rail) + 40px)}
+body.theme-home .t-plant{left:auto;right:3%}
+body.theme-home .t-lampcone{right:22%}
+
+/* 5. The page banner carries its own bright forest wash and its own
+      little treeline. On a dark ground that reads as a hole in the page. */
+body:is(.theme-dark,.theme-digital,.theme-city) .banner{
+  background:linear-gradient(170deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.05) 60%,
+             rgba(255,255,255,.03) 100%);
+  border-color:var(--edge)}
+body:is(.theme-dark,.theme-digital,.theme-city) .banner .trees{opacity:.10 !important;
+  filter:brightness(.5) saturate(.4)}
+body:is(.theme-military,.theme-indianmusic) .banner{
+  background:linear-gradient(170deg,rgba(255,255,255,.90) 0%,rgba(255,248,236,.86) 100%)}
+
+/* 6. The military stencil was printing over the Settings link. */
+body.theme-military .t-stencil{left:calc(var(--rail) + 24px);bottom:14px}
+
+/* 7. The strap line under the title keeps the forest's green on every
+      theme, which disappears on half of them. */
+body:not(.theme-forest) .sky-title p{
+  color:var(--sky-sub,var(--ink-soft));
+  text-shadow:0 1px 14px var(--sky-shadow,rgba(0,0,0,.3))}
+body.theme-dark        {--sky-sub:rgba(196,208,240,.78)}
+body.theme-digital     {--sky-sub:rgba(140,232,248,.72)}
+body.theme-racing      {--sky-sub:rgba(238,242,250,.80)}
+body.theme-city        {--sky-sub:rgba(255,226,190,.82)}
+body.theme-minimal     {--sky-sub:rgba(60,60,56,.55)}
+body.theme-home        {--sky-sub:rgba(96,66,38,.70)}
+body.theme-travel      {--sky-sub:rgba(14,60,90,.62)}
+body.theme-village     {--sky-sub:rgba(78,46,18,.70)}
+body.theme-military    {--sky-sub:rgba(226,236,196,.72)}
+body.theme-artistic    {--sky-sub:rgba(60,50,68,.58)}
+body.theme-indianmusic {--sky-sub:rgba(255,216,164,.80)}

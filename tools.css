@@ -1,0 +1,215 @@
+/* ==========================================================
+   tools.css — the top-bar tools, the Themes page, the Ask panel.
+   Colours come from the same theme tokens as everything else,
+   so these pieces follow the theme like the rest of the site.
+   ========================================================== */
+
+/* ==========================================================
+   1. TOP BAR TOOLS
+   The twelve theme buttons used to live here and filled the
+   whole header. Two buttons sit here now; the themes moved to
+   a page of their own in the menu.
+   ========================================================== */
+.topbar-tools{display:flex;align-items:center;gap:8px}
+
+.tbtn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  padding:8px 14px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--edge);
+  background:var(--s1);
+  color:var(--ink);
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.tbtn:hover{transform:translateY(-2px);box-shadow:var(--shadow);background:var(--s2)}
+.tbtn:active{transform:none}
+.tbtn svg{flex:none;opacity:.85}
+
+.tbtn.primary{
+  background:color-mix(in srgb, var(--accent) 70%, var(--ink));
+  border-color:transparent;
+  color:var(--card);
+}
+.tbtn.primary svg{opacity:1}
+.tbtn.primary:hover{background:color-mix(in srgb, var(--accent) 58%, var(--ink))}
+
+.tbtn-key{
+  font:inherit;font-size:10.5px;font-weight:700;letter-spacing:.04em;
+  padding:2px 6px;border-radius:6px;
+  background:color-mix(in srgb, var(--ink) 12%, transparent);
+  border:1px solid var(--edge);
+  color:var(--ink-quiet);
+}
+
+@media(max-width:820px){
+  .tbtn-key{display:none}
+  .tbtn span{display:none}
+  .tbtn{padding:9px 11px}
+}
+
+/* ==========================================================
+   2. THE THEMES PAGE
+   ========================================================== */
+.theme-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:14px;margin-top:16px;
+}
+
+.theme-card{
+  position:relative;text-align:left;font-family:inherit;cursor:pointer;
+  display:flex;flex-direction:column;gap:9px;
+  padding:14px 15px 15px;
+  border:1px solid var(--edge);border-radius:var(--radius);
+  background:var(--s1);color:var(--ink);
+  box-shadow:var(--shadow);
+  transition:transform .2s cubic-bezier(.4,0,.2,1),box-shadow .2s ease,border-color .2s ease;
+}
+.theme-card:hover{transform:translateY(-4px);box-shadow:var(--lift)}
+.theme-card.on{border-color:var(--pg);box-shadow:0 0 0 2px var(--pg),var(--shadow)}
+
+.theme-name{
+  display:flex;align-items:center;gap:8px;
+  font-size:14.5px;font-weight:700;color:var(--ink);
+}
+.theme-blurb{font-size:12.5px;line-height:1.45;color:var(--ink-quiet)}
+
+.theme-tick{
+  display:none;align-self:flex-start;
+  font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;
+  background:var(--pg);color:var(--card);
+}
+.theme-card.on .theme-tick{display:inline-block}
+
+/* the swatch: sky behind, a card on it, the accent as a dot.
+   Three colours is enough to recognise a theme at a glance. */
+.tsw{
+  position:relative;display:block;height:76px;border-radius:12px;overflow:hidden;
+  border:1px solid var(--edge);
+}
+.tsw-sky {position:absolute;inset:0;background:var(--a)}
+.tsw-card{position:absolute;left:12px;right:12px;bottom:-14px;height:44px;
+  border-radius:10px 10px 0 0;background:var(--b);
+  box-shadow:0 -2px 10px rgba(0,0,0,.16)}
+.tsw-dot {position:absolute;right:13px;top:12px;width:16px;height:16px;
+  border-radius:50%;background:var(--c);box-shadow:0 1px 6px rgba(0,0,0,.28)}
+
+/* each theme's own sky / card / accent, written out once */
+.tsw[data-t="dark"]       {--a:#0a0e1a;--b:#171f33;--c:#7c8cf8}
+.tsw[data-t="digital"]    {--a:#03131b;--b:#0a2532;--c:#22d3ee}
+.tsw[data-t="forest"]     {--a:#dfe6f4;--b:#ffffff;--c:#2f6b52}
+.tsw[data-t="racing"]     {--a:#1d2430;--b:#f7f8fa;--c:#d92b25}
+.tsw[data-t="city"]       {--a:#2b2a48;--b:#1e2436;--c:#f4a340}
+.tsw[data-t="minimal"]    {--a:#f5f5f2;--b:#ffffff;--c:#3a3a38}
+.tsw[data-t="home"]       {--a:#e7d6c2;--b:#fffaf3;--c:#c1712c}
+.tsw[data-t="travel"]     {--a:#8ecdf3;--b:#ffffff;--c:#0f7fbf}
+.tsw[data-t="village"]    {--a:#eec18e;--b:#fffaf0;--c:#a8701f}
+.tsw[data-t="military"]   {--a:#2e3722;--b:#f1f0e4;--c:#5c6b31}
+.tsw[data-t="artistic"]   {--a:#f5ece0;--b:#fffdf9;--c:#c8437e}
+.tsw[data-t="indianmusic"]{--a:#6d2313;--b:#fff6e6;--c:#c2410c}
+
+.page.t-themes[class]{--ph:#7a63e0}
+
+/* ==========================================================
+   3. THE ASK PANEL
+   ========================================================== */
+.ask{display:flex;flex-direction:column;gap:12px}
+
+.ask-bar{
+  display:flex;align-items:center;gap:10px;
+  border:1px solid var(--edge);border-radius:13px;
+  background:var(--card);
+  padding:7px 8px 7px 13px;
+}
+.ask-bar svg{flex:none;color:var(--pg,var(--accent))}
+.ask-bar input{
+  flex:1;min-width:0;border:none;outline:none;background:transparent;
+  font:inherit;font-size:15px;color:var(--ink);padding:6px 0;
+}
+.ask-bar input::placeholder{color:var(--ink-quiet);opacity:.8}
+.ask-bar .btn{flex:none}
+
+.ask-eg{display:flex;flex-wrap:wrap;gap:7px}
+.ask-chip{
+  font:inherit;font-size:12.5px;cursor:pointer;
+  padding:5px 12px;border-radius:999px;
+  border:1px solid var(--edge);background:var(--s1);color:var(--ink-quiet);
+  transition:all .15s ease;
+}
+.ask-chip:hover{background:var(--s2);color:var(--ink);border-color:var(--pg)}
+
+.ask-out{
+  border-top:1px solid var(--edge);
+  padding-top:14px;margin-top:2px;
+  max-height:52vh;overflow-y:auto;
+}
+.ask-h{margin:0 0 4px;font-size:18px;color:var(--pg,var(--accent))}
+.ask-note{margin:0 0 12px;font-size:13.5px;color:var(--ink-quiet)}
+
+.ask-stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.ask-stat{
+  flex:1;min-width:118px;
+  border:1px solid var(--edge);border-radius:13px;
+  background:var(--s2);padding:11px 14px;
+}
+.ask-stat b{display:block;font-size:21px;line-height:1.2;color:var(--pg,var(--accent))}
+.ask-stat span{display:block;font-size:11.5px;color:var(--ink-quiet);margin-top:1px}
+
+.ask-gl{
+  margin:16px 0 7px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:color-mix(in srgb, var(--ink-soft) 24%, var(--ink));
+}
+.ask-rows{display:flex;flex-direction:column;gap:5px}
+
+.ask-row{
+  display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:11px;
+  text-align:left;font:inherit;cursor:pointer;width:100%;
+  padding:9px 12px;border-radius:11px;
+  border:1px solid transparent;background:var(--s2);color:var(--ink);
+  transition:background .14s ease,border-color .14s ease;
+}
+.ask-row:hover{background:var(--s3);border-color:var(--edge)}
+.ask-kind{
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  text-align:center;padding:3px 0;border-radius:6px;
+  background:color-mix(in srgb, var(--pg,var(--accent)) 20%, var(--card));
+  color:var(--pg,var(--accent));
+}
+.ask-title{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ask-sub{font-size:11.5px;color:var(--ink-quiet);text-align:right;white-space:nowrap}
+
+@media(max-width:640px){
+  .ask-row{grid-template-columns:1fr;gap:3px}
+  .ask-kind{justify-self:start;padding:3px 9px}
+  .ask-sub{text-align:left}
+}
+
+/* ==========================================================
+   4. THE JUMP BOX
+   Its category chips were six fixed pale backgrounds with dark
+   text on them, which vanished on the dark themes.
+   ========================================================== */
+.pal-top{border-bottom-color:var(--edge)}
+.pal-top svg{color:var(--ink-quiet)}
+.pal-row.on{background:var(--s3)}
+.pal-sub{color:var(--ink-quiet)}
+.pal-empty{color:var(--ink-quiet)}
+.pal-foot{border-top-color:var(--edge);color:var(--ink-quiet)}
+
+.pal-kind,
+.pal-kind.k-do,.pal-kind.k-page,.pal-kind.k-member,
+.pal-kind.k-goal,.pal-kind.k-task,.pal-kind.k-reminder,.pal-kind.k-expense{
+  background:color-mix(in srgb, var(--kh, var(--accent)) 20%, var(--card));
+  color:color-mix(in srgb, var(--kh, var(--accent)) 42%, var(--ink));
+}
+.pal-kind.k-do      {--kh:#2f9d6b}
+.pal-kind.k-page    {--kh:#7a63e0}
+.pal-kind.k-member  {--kh:#c0822e}
+.pal-kind.k-goal    {--kh:#2b8fb5}
+.pal-kind.k-task    {--kh:#3d9c73}
+.pal-kind.k-reminder{--kh:#c25f7d}
+.pal-kind.k-expense {--kh:#7f9c3a}
+
+/* the modal chrome follows the theme like everything else */
+.modal-head,.modal-foot{background:var(--s2);border-color:var(--edge)}
+.modal-x{color:var(--ink-quiet)}

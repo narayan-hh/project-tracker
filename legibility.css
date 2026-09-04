@@ -1,0 +1,421 @@
+/* ==========================================================
+   legibility.css — loaded last, on purpose.
+
+   The problem this file solves
+   ----------------------------
+   The earlier stylesheets painted every card, tile, panel and
+   button with a fixed set of colours: white surfaces and a
+   forest-green accent. That looked right in the forest theme and
+   wrong in the other eleven — pale mint cards on a maroon page,
+   green headings on a night sky, muted grey that vanished into
+   whatever was behind it.
+
+   The fix is to stop naming colours and start deriving them.
+   Every theme already declares --card, --ink, --ink-soft, --line
+   and --accent. Everything below is mixed from those four, so a
+   surface is always the theme's own surface and the text on it is
+   always the theme's own ink. Change the theme and the cards,
+   tiles, headings and chips move with it.
+   ========================================================== */
+
+/* ==========================================================
+   1. SHARED SURFACES
+   --s0 sits behind the page, --s1 is a card, --s2 and --s3 are
+   the raised states (hover, avatar, chip). Each is the theme's
+   card colour nudged towards its ink, so the steps stay visible
+   whether the theme is light or dark.
+   ========================================================== */
+body[class]{
+  --s0: color-mix(in srgb, var(--card) 78%, transparent);
+  --s1: color-mix(in srgb, var(--card) 94%, transparent);
+  --s2: color-mix(in srgb, var(--card) 93%, var(--ink));
+  --s3: color-mix(in srgb, var(--card) 86%, var(--ink));
+  --edge: color-mix(in srgb, var(--line) 88%, transparent);
+
+  /* Muted text used to be a colour each theme picked by hand, and
+     several of them picked one too close to their own card. Deriving
+     it from ink and card instead keeps it visibly softer than body
+     text while always clearing 4.5:1 on the surface it sits on. */
+  --ink-soft : color-mix(in srgb, var(--ink) 74%, var(--card));
+  --ink-quiet: color-mix(in srgb, var(--ink) 78%, var(--card));
+
+  /* --leaf-* named the forest theme's greens and were used for
+     every accent in the app: tile numbers, progress bars, the
+     green buttons, checkbox ticks. They now follow the theme. */
+  --leaf-1: color-mix(in srgb, var(--accent) 72%, var(--ink));
+  --leaf-2: color-mix(in srgb, var(--accent) 84%, var(--ink));
+  --leaf-3: color-mix(in srgb, var(--accent) 70%, var(--card));
+  --leaf-4: color-mix(in srgb, var(--accent) 48%, var(--card));
+
+  --donut-track: color-mix(in srgb, var(--card) 82%, var(--ink));
+
+  /* --pg is the page accent, and .page sets it per section. Modals,
+     the top bar and the jump box live outside any .page, so they need
+     a sensible one too — otherwise var(--pg) resolves to nothing and,
+     for instance, the Ask button came out white text on no background. */
+  --pk  : var(--accent);
+  --pg  : color-mix(in srgb, var(--accent) 58%, var(--ink));
+  --pg-a: color-mix(in srgb, var(--card) 90%, var(--accent));
+  --pg-b: color-mix(in srgb, var(--card) 74%, var(--accent));
+}
+
+/* ==========================================================
+   2. THE SIX PERSON COLOURS
+   Six hues so team members stay telling apart, each blended with
+   the theme accent so a card belongs to the theme it is in, and
+   laid over the theme's card colour rather than over white.
+   ========================================================== */
+body[class]{
+  --h1:#2f9d6b; --h2:#2b8fb5; --h3:#c0822e;
+  --h4:#7a63e0; --h5:#c25f7d; --h6:#7f9c3a;
+
+  --k1: color-mix(in srgb, var(--h1) 64%, var(--accent));
+  --k2: color-mix(in srgb, var(--h2) 64%, var(--accent));
+  --k3: color-mix(in srgb, var(--h3) 64%, var(--accent));
+  --k4: color-mix(in srgb, var(--h4) 64%, var(--accent));
+  --k5: color-mix(in srgb, var(--h5) 64%, var(--accent));
+  --k6: color-mix(in srgb, var(--h6) 64%, var(--accent));
+
+  --c1a: color-mix(in srgb, var(--card) 90%, var(--k1));
+  --c1b: color-mix(in srgb, var(--card) 76%, var(--k1));
+  --c1 : color-mix(in srgb, var(--k1) 56%, var(--ink));
+  --c2a: color-mix(in srgb, var(--card) 90%, var(--k2));
+  --c2b: color-mix(in srgb, var(--card) 76%, var(--k2));
+  --c2 : color-mix(in srgb, var(--k2) 56%, var(--ink));
+  --c3a: color-mix(in srgb, var(--card) 90%, var(--k3));
+  --c3b: color-mix(in srgb, var(--card) 76%, var(--k3));
+  --c3 : color-mix(in srgb, var(--k3) 56%, var(--ink));
+  --c4a: color-mix(in srgb, var(--card) 90%, var(--k4));
+  --c4b: color-mix(in srgb, var(--card) 76%, var(--k4));
+  --c4 : color-mix(in srgb, var(--k4) 56%, var(--ink));
+  --c5a: color-mix(in srgb, var(--card) 90%, var(--k5));
+  --c5b: color-mix(in srgb, var(--card) 76%, var(--k5));
+  --c5 : color-mix(in srgb, var(--k5) 56%, var(--ink));
+  --c6a: color-mix(in srgb, var(--card) 90%, var(--k6));
+  --c6b: color-mix(in srgb, var(--card) 76%, var(--k6));
+  --c6 : color-mix(in srgb, var(--k6) 56%, var(--ink));
+}
+
+/* ==========================================================
+   3. A COLOUR PER PAGE, STILL FOLLOWING THE THEME
+   Each page keeps its own hue so you can tell Budget from Tasks
+   at a glance, but the tone is mixed against the theme's ink and
+   card, so the heading is dark on a light theme and light on a
+   dark one without anybody writing it out twelve times.
+   ========================================================== */
+.page.t-home  {--ph:#2f9d6b}
+.page.t-tasks {--ph:#c0822e}
+.page.t-team  {--ph:#2b8fb5}
+.page.t-rem   {--ph:#7a63e0}
+.page.t-budget{--ph:#c25f7d}
+.page.t-set   {--ph:#7f9c3a}
+.page.t-review{--ph:#3d9c73}
+
+.page[class]{
+  --ph: var(--accent);                       /* fallback for any new page */
+  /* the page hue, pulled into the theme's own colour family so a
+     forest green heading does not sit on a maroon page */
+  --pk  : color-mix(in srgb, var(--ph) 45%, var(--accent));
+  --pg  : color-mix(in srgb, var(--pk) 58%, var(--ink));
+  --pg-a: color-mix(in srgb, var(--card) 90%, var(--pk));
+  --pg-b: color-mix(in srgb, var(--card) 74%, var(--pk));
+}
+/* the line above resets --ph for pages that set it, so put the
+   page hues back afterwards at the same weight */
+/* the hills drawn along the bottom of every banner were three
+   fixed forest greens; they now take the page's own tone */
+.page[class] .banner{
+  --tree-far : color-mix(in srgb, var(--pk) 32%, var(--card));
+  --tree-mid : color-mix(in srgb, var(--pk) 58%, var(--card));
+  --tree-near: color-mix(in srgb, var(--pk) 82%, var(--ink));
+}
+
+.page.t-home[class]  {--ph:#2f9d6b}
+.page.t-tasks[class] {--ph:#c0822e}
+.page.t-team[class]  {--ph:#2b8fb5}
+.page.t-rem[class]   {--ph:#7a63e0}
+.page.t-budget[class]{--ph:#c25f7d}
+.page.t-set[class]   {--ph:#7f9c3a}
+.page.t-review[class]{--ph:#3d9c73}
+
+/* ==========================================================
+   4. CARDS, PANELS AND TILES
+   ========================================================== */
+.tile,.panel,.col,.lead,.pcard,details.past,.rv,.imp-paste,.dropzone{
+  background:var(--s1);
+  border-color:var(--edge);
+  color:var(--ink);
+}
+.page .panel{border-top:3px solid var(--pg-b)}
+.tile b{color:var(--pg)}
+.tile span{color:var(--ink)}
+.tile em{color:var(--ink-quiet)}
+
+/* Task cards are a small card sitting inside .col, which is itself a
+   card. Both were painted with the sheer --s1, so the scenery read
+   through two layers of glass and the cards kept the forest look
+   whatever theme was chosen. They now use --mist, the same opaque
+   inner-card surface as the .task rows, .note-rows and field boxes,
+   so they follow the theme and match the other small cards.
+   Dark, digital and city themes have their own, higher-specificity
+   rule in themes.css and are left alone. */
+.task-card{
+  background:var(--mist);
+  border-color:var(--line);
+  color:var(--ink);
+  backdrop-filter:none;
+}
+
+.page .banner{
+  background:linear-gradient(170deg,
+    color-mix(in srgb, var(--card) 92%, transparent) 0%,
+    var(--pg-a) 46%,
+    var(--pg-b) 100%);
+  border-color:var(--edge);
+}
+.banner h1,.page .banner h1{color:var(--pg)}
+.banner .sub{color:var(--ink-quiet)}
+.banner .pill,.page .banner .pill{
+  color:var(--pg);
+  background:color-mix(in srgb, var(--card) 88%, transparent);
+  border-color:var(--pg-b);
+}
+
+.toolbar,.filters{background:var(--s1);border-color:var(--edge)}
+
+.col-head{background:var(--s2);border-bottom-color:var(--edge)}
+
+/* ==========================================================
+   5. TEAM AND PERSON CARDS
+   The whole card is a link. Without these two lines every word
+   inside it — name, role, counts, the pills — came out in the
+   browser's default link blue with an underline under it,
+   whatever the theme was.
+   ========================================================== */
+a.tcard,a.pcard,a.tile,a.lead,a.card,#view a,.sidebar a,.topbar a{
+  color:inherit;
+  text-decoration:none;
+}
+a.tcard *,a.pcard *,a.tile *,a.lead *{text-decoration:none}
+#view a:hover{text-decoration:none}
+
+.tcard .role,.tcard .count,.pcard .loc,.pcard .obj{color:var(--ink-quiet)}
+.tcard .avatar{
+  background:var(--s3);
+  box-shadow:0 2px 8px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+.tcard .pills li{
+  background:var(--s2);
+  border-color:var(--edge);
+  color:var(--ink-quiet);
+}
+
+.go-btn{
+  background:var(--s2);
+  border-color:var(--edge);
+  color:var(--btn,var(--pg));
+}
+.tcard:hover .go-btn,.pcard:hover .go-btn,.lead:hover .go-btn{
+  background:var(--s3);
+  box-shadow:0 4px 14px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+/* ==========================================================
+   6. BUTTONS, FIELDS AND CHROME
+   ========================================================== */
+/* body[class] keeps these ahead of the blanket dark-theme rule in
+   themes.css, which would otherwise grey out every action button. */
+body[class] .btn{background:var(--s1);border-color:var(--edge);color:var(--ink)}
+body[class] .btn:hover{background:var(--s2)}
+body[class] .btn.go,
+body[class] .btn.green,
+body[class] .btn.leaf{
+  background:var(--pg);border-color:var(--pg);color:var(--card);
+}
+body[class] .btn.go:hover,
+body[class] .btn.green:hover,
+body[class] .btn.leaf:hover{filter:brightness(1.1)}
+body[class] .btn.primary{background:var(--accent);border-color:var(--accent);
+  color:var(--card)}
+body[class] .btn.danger{
+  color:color-mix(in srgb, #c9748c 52%, var(--ink));
+  border-color:color-mix(in srgb, #c9748c 40%, var(--line));
+  background:var(--s1);
+}
+body[class] .btn.danger:hover{background:color-mix(in srgb, var(--card) 86%, #c9748c)}
+
+.burger{background:var(--s1);border-color:var(--edge)}
+.burger span{background:var(--ink)}
+
+.fxbtn{background:var(--s1);border-color:var(--edge);color:var(--ink-quiet)}
+.fxbtn:hover{color:var(--ink);background:var(--s2)}
+/* the button for the theme you are already on: white text needs a
+   properly dark chip behind it, whatever the theme's own colour is */
+.fxbtn.on{
+  color:#fff;
+  border-color:transparent;
+  background:color-mix(in srgb, var(--accent) 58%, #000);
+}
+
+input,select,textarea,
+select.status-sel,.mini-sel,.head-chip,.f-search,#imp-text{
+  background:var(--card);
+  color:var(--ink);
+  border-color:var(--edge);
+}
+[data-edit]:hover{background:var(--s2);box-shadow:0 0 0 3px var(--s2)}
+[data-edit]:focus{background:var(--card);box-shadow:0 0 0 2px var(--accent)}
+[data-edit]:empty::before{color:color-mix(in srgb, var(--ink) 40%, transparent)}
+
+.empty{background:var(--s0);border-color:var(--edge);color:var(--ink-quiet)}
+.muted{color:var(--ink-quiet)}
+/* a section heading sits straight on the scenery rather than in a
+   card, so on themes with a busy or dark ground the words had
+   nothing behind them. A quiet strip fixes that without turning
+   the heading into another card. */
+.page > .section-head{
+  background:var(--s0);
+  border:1px solid var(--edge);
+  border-radius:12px;
+  padding:9px 14px;
+}
+.section-head h2{color:var(--pg)}
+.section-head span{color:var(--ink-quiet)}
+.mini-row .m{color:var(--ink-quiet)}
+.mini-col h4{color:var(--ink-quiet)}
+
+/* the closing line at the foot of a page had no surface of its
+   own, so it was ink-coloured text sitting straight on the
+   scenery — invisible on any theme with a dark ground */
+.foot{
+  color:var(--ink-quiet);
+  background:var(--s1);
+  border:1px solid var(--edge);
+  border-radius:14px;
+  padding:11px 16px;
+}
+
+/* ==========================================================
+   7. SIDEBAR AND TOP BAR
+   Left alone for the themes that already paint their own dark
+   chrome (military, Indian music) — those set cream text to match.
+   Everything else follows the theme's card colour.
+   ========================================================== */
+.topbar{background:var(--s1);border-bottom-color:var(--edge)}
+.sidebar{background:var(--s1);border-right-color:var(--edge)}
+.sb-head{border-bottom-color:var(--edge)}
+.sb-head p{color:var(--ink-quiet)}
+.sb-foot{border-top-color:var(--edge)}
+.sb-link{color:var(--ink)}
+.sb-link:hover{background:var(--s2)}
+.sb-link.active{background:var(--s3);font-weight:600}
+.topbar .brand{color:color-mix(in srgb, var(--accent) 68%, var(--ink));cursor:pointer}
+.topbar .brand:hover{filter:brightness(1.15)}
+
+/* ==========================================================
+   8. TABLES AND STATUS CHIPS
+   ========================================================== */
+.grid-table th{color:var(--ink-quiet);border-bottom-color:var(--edge)}
+.grid-table td{border-bottom-color:var(--edge);color:var(--ink)}
+.grid-table tbody tr:hover{background:var(--s2)}
+
+.status,.chip{border-width:1px;border-style:solid}
+.status.s-on  {background:color-mix(in srgb, var(--card) 84%, #3d9c73);
+               color:color-mix(in srgb, #1f7a55 34%, var(--ink));
+               border-color:color-mix(in srgb, var(--card) 66%, #3d9c73)}
+.status.s-risk{background:color-mix(in srgb, var(--card) 84%, #d2a13f);
+               color:color-mix(in srgb, #96660f 34%, var(--ink));
+               border-color:color-mix(in srgb, var(--card) 66%, #d2a13f)}
+.status.s-hold{background:color-mix(in srgb, var(--card) 84%, #c9748c);
+               color:color-mix(in srgb, #a9455f 34%, var(--ink));
+               border-color:color-mix(in srgb, var(--card) 66%, #c9748c)}
+.status.s-plan{background:color-mix(in srgb, var(--card) 84%, #8b93c4);
+               color:color-mix(in srgb, #5a63a0 34%, var(--ink));
+               border-color:color-mix(in srgb, var(--card) 66%, #8b93c4)}
+.status.s-done{background:color-mix(in srgb, var(--card) 84%, #4f86c0);
+               color:color-mix(in srgb, #2f6398 34%, var(--ink));
+               border-color:color-mix(in srgb, var(--card) 66%, #4f86c0)}
+
+/* ==========================================================
+   8b. WEEKLY REVIEW BADGES
+   The "nothing to do here" badge was a pale grey chip with
+   --ink-soft text on it. On the dark themes --ink-soft is nearly
+   white, so the number disappeared into its own chip.
+   ========================================================== */
+.section-head .rv-count,.rv-count{
+  background:color-mix(in srgb, var(--ink) 86%, var(--card));
+  color:var(--card);
+}
+.section-head .rv-count.zero,.rv-count.zero{
+  background:var(--s3);
+  color:var(--ink-quiet);
+}
+.rv-clear{color:var(--ink-quiet)}
+.rv{border-left-color:var(--edge)}
+
+/* small uppercase labels are set in 11px, so they need more
+   contrast than ordinary muted body text */
+.field > label,
+.tb-label,
+.filters .tb-label,
+.map-lab,
+.sb-label{
+  color:color-mix(in srgb, var(--ink-soft) 24%, var(--ink));
+}
+
+/* the button for the theme you are on keeps that theme's own
+   colour; a thin dark wash over it is what makes the white label
+   readable on the paler ones. */
+body[class] .fxbtn.on[data-theme]{
+  color:#fff;
+  box-shadow:inset 0 0 0 999px rgba(0,0,0,.18);
+}
+
+/* ==========================================================
+   8c. THE LAST FEW HARD-CODED CHIPS
+   ========================================================== */
+kbd{background:var(--s2);border-color:var(--edge);color:var(--ink)}
+.sc-row{background:var(--s2)}
+
+.f-chip{background:var(--s1);border-color:var(--edge);color:var(--ink)}
+.f-chip:hover{border-color:var(--pg);background:var(--s2)}
+.f-chip.on{background:var(--pg);border-color:var(--pg);color:var(--card)}
+
+/* the drag handle on a task card was set to the border colour,
+   which is by definition almost invisible */
+.task-card .grip{color:color-mix(in srgb, var(--ink) 66%, var(--card))}
+.task-card:hover .grip{color:var(--ink)}
+
+.editnote{color:var(--ink-quiet)}
+.stat span,.lead .stat span{color:var(--ink-quiet)}
+.col-head p{color:var(--ink-quiet)}
+.map-lab em{color:var(--ink-quiet)}
+
+/* ==========================================================
+   9. THE TITLE ACROSS THE SKY
+   It was centred on the whole window, so on a wide screen the
+   first few letters sat behind the sidebar. Centre it on the part
+   of the window the page actually occupies.
+   ========================================================== */
+.sky-title{left:var(--rail);right:0}
+body.rail-hidden .sky-title{left:0}
+@media(max-width:1024px){.sky-title{left:0}}
+.sky-title h1{
+  font-size:clamp(30px,5.6vw,84px);
+  letter-spacing:.12em;
+  padding:0 18px;
+  color:var(--sky-ink,var(--ink));
+  opacity:.60;
+}
+.sky-title p{color:var(--sky-sub,var(--ink-quiet))}
+
+/* ==========================================================
+   10. FOCUS
+   Keyboard users could not see where they were.
+   ========================================================== */
+a:focus-visible,button:focus-visible,select:focus-visible,
+input:focus-visible,textarea:focus-visible,[data-act]:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  border-radius:8px;
+}

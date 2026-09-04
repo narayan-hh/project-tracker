@@ -1,0 +1,363 @@
+/* ==========================================================
+   Living forest
+   .world      — sky, distant trees      (behind the pages)
+   .foreground — near trees, animals,
+                 weather                 (IN FRONT of the pages)
+   Both are pure decoration and never take a click.
+   ========================================================== */
+
+.world, .world *,
+.foreground, .foreground *{pointer-events:none !important}
+
+.world{position:fixed;inset:0;z-index:0;overflow:hidden}
+
+/* the foreground sits above the page content but below the top bar */
+.foreground{position:fixed;inset:0;z-index:24;overflow:hidden}
+
+/* ---------- sky tints ---------- */
+.tint{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease}
+.tint.rain{background:linear-gradient(180deg,rgba(72,88,112,.52),rgba(58,76,98,.34))}
+.tint.snow{background:linear-gradient(180deg,rgba(214,228,244,.44),rgba(238,246,255,.26))}
+.tint.sun {background:linear-gradient(180deg,rgba(255,238,182,.40),rgba(255,216,150,.14))}
+body.fx-rain .tint.rain{opacity:1}
+body.fx-snow .tint.snow{opacity:1}
+body.fx-sun  .tint.sun {opacity:1}
+
+.scene{transition:filter 1.4s ease}
+body.fx-rain .scene,
+body.fx-rain .fg-scene{filter:saturate(.6) brightness(.68)}
+body.fx-snow .scene,
+body.fx-snow .fg-scene{filter:saturate(.6) brightness(1.06)}
+body.fx-sun  .scene,
+body.fx-sun  .fg-scene{filter:saturate(1.2) brightness(1.12)}
+.fg-scene{transition:filter 1.4s ease}
+
+/* ==========================================================
+   SUN
+   ========================================================== */
+.sun-orb{
+  position:absolute;top:5%;right:9%;width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,#FFFDF0 0%,#FFF3C4 30%,rgba(255,226,150,.7) 52%,transparent 72%);
+  opacity:.5;animation:pulse 12s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.45}50%{transform:scale(1.1);opacity:.7}}
+body.fx-sun .sun-orb{opacity:1;width:190px;height:190px;filter:brightness(1.3)}
+
+.rays{
+  position:absolute;top:-16%;right:0;width:96vw;height:126vh;opacity:0;
+  transition:opacity 1.4s ease;transform-origin:top right;
+  background:repeating-linear-gradient(100deg,
+    rgba(255,248,214,.55) 0px,rgba(255,248,214,.55) 26px,
+    transparent 26px,transparent 88px);
+  mask-image:linear-gradient(196deg,#000 0%,rgba(0,0,0,.5) 40%,transparent 70%);
+  -webkit-mask-image:linear-gradient(196deg,#000 0%,rgba(0,0,0,.5) 40%,transparent 70%);
+  animation:raysway 18s ease-in-out infinite;
+}
+body.fx-sun .rays{opacity:1}
+@keyframes raysway{0%,100%{transform:rotate(0deg)}50%{transform:rotate(1.8deg)}}
+
+/* a warm bloom over everything when the sun is out */
+.bloom{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;
+  background:radial-gradient(120% 90% at 88% 2%,rgba(255,244,200,.62),transparent 62%)}
+body.fx-sun .bloom{opacity:1}
+
+/* ==========================================================
+   CLOUDS  (drift always, darken and thicken for the storm)
+   ========================================================== */
+.cloud{position:absolute;opacity:.5;animation:cloudDrift linear infinite;
+  transition:opacity 1.4s ease,filter 1.4s ease}
+@keyframes cloudDrift{from{transform:translateX(-32vw)}to{transform:translateX(122vw)}}
+body.fx-rain .cloud{opacity:.96;filter:brightness(.4) saturate(.4)}
+body.fx-snow .cloud{opacity:.85;filter:brightness(1.05) saturate(.3)}
+body.fx-sun  .cloud{opacity:.22}
+
+/* extra low storm deck, only in rain */
+.storm-deck{position:absolute;top:0;left:0;width:100%;height:34vh;opacity:0;
+  transition:opacity 1.2s ease;
+  background:linear-gradient(180deg,rgba(46,56,72,.92),rgba(62,74,92,.45) 60%,transparent)}
+body.fx-rain .storm-deck{opacity:1}
+
+/* clouds that hang in one place, breathing */
+.cloud.hover{animation:cloudHover ease-in-out infinite;animation-duration:26s;opacity:.42}
+@keyframes cloudHover{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%    {transform:translate(14px,-9px) scale(1.03)}
+}
+body.fx-rain .cloud.hover{opacity:.9;filter:brightness(.42) saturate(.35)}
+body.fx-sun  .cloud.hover{opacity:.2}
+
+/* ==========================================================
+   THE TITLE, WRITTEN ACROSS THE SKY
+   ========================================================== */
+.sky-title{
+  position:fixed;top:15vh;left:0;right:0;z-index:5;
+  text-align:center;pointer-events:none;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .8s ease,transform .8s ease;
+}
+body.home:not(.scrolled) .sky-title{opacity:1;transform:none}
+
+.sky-title h1{
+  margin:0;
+  font-size:clamp(40px,8vw,104px);
+  font-weight:300;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(38,92,70,.34);
+  text-shadow:0 2px 0 rgba(255,255,255,.62), 0 14px 40px rgba(255,255,255,.5);
+  animation:skyDrift 22s ease-in-out infinite;
+}
+.sky-title p{
+  margin:12px 0 0;font-size:clamp(12px,1.5vw,16px);
+  letter-spacing:.34em;text-transform:uppercase;
+  color:rgba(38,92,70,.42);
+  text-shadow:0 1px 0 rgba(255,255,255,.7);
+}
+@keyframes skyDrift{0%,100%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+
+body.fx-rain .sky-title h1,
+body.fx-rain .sky-title p{color:rgba(226,238,252,.62);text-shadow:0 2px 18px rgba(20,30,44,.6)}
+body.fx-sun  .sky-title h1{color:rgba(150,110,40,.32)}
+
+/* the transparent space on the home page that lets the sky show through */
+.sky-gap{height:44vh;min-height:250px}
+
+/* ==========================================================
+   MIST
+   ========================================================== */
+.mistband{position:absolute;left:-25%;width:150%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.7),transparent 72%);filter:blur(9px)}
+.mistband.b1{bottom:20%;height:170px;animation:mdrift 52s linear infinite}
+.mistband.b2{bottom:33%;height:120px;opacity:.55;animation:mdrift 74s linear infinite reverse}
+.mistband.b3{bottom:6%; height:140px;opacity:.75;animation:mdrift 61s linear infinite reverse}
+@keyframes mdrift{0%{transform:translateX(-9%)}100%{transform:translateX(9%)}}
+
+/* ==========================================================
+   TREE LAYERS
+   ========================================================== */
+.layer{position:absolute;left:0;bottom:0;width:100%;transform-origin:bottom center}
+.layer.far {opacity:.28;animation:sway1 26s ease-in-out infinite}
+.layer.mid {opacity:.44;animation:sway2 19s ease-in-out infinite}
+.layer.fgedge.back{opacity:.62;animation:sway2 30s ease-in-out infinite}
+.layer.fgedge.mid2{opacity:.82;animation:sway1 25s ease-in-out infinite reverse}
+.layer.fgnear{opacity:.96;animation:sway1 21s ease-in-out infinite}
+.layer.fgfloor{opacity:1}
+@keyframes sway1{0%,100%{transform:translateX(-10px)}50%{transform:translateX(10px)}}
+@keyframes sway2{0%,100%{transform:translateX(9px)}50%{transform:translateX(-9px)}}
+
+/* --- WIND: the trees really lean --- */
+@keyframes gust1{
+  0%,100%{transform:translateX(-14px) skewX(0deg)}
+  35%    {transform:translateX(16px)  skewX(-3.2deg)}
+  60%    {transform:translateX(8px)   skewX(-1.4deg)}
+  80%    {transform:translateX(20px)  skewX(-4deg)}
+}
+@keyframes gust2{
+  0%,100%{transform:translateX(12px) skewX(0deg)}
+  40%    {transform:translateX(-16px) skewX(3.4deg)}
+  75%    {transform:translateX(-22px) skewX(4.4deg)}
+}
+body.fx-wind .layer.far        {animation:gust1 4.2s ease-in-out infinite}
+body.fx-wind .layer.mid        {animation:gust2 3.4s ease-in-out infinite}
+body.fx-wind .layer.fgedge.back{animation:gust2 3.6s ease-in-out infinite}
+body.fx-wind .layer.fgedge.mid2{animation:gust1 3.1s ease-in-out infinite}
+body.fx-wind .layer.fgnear     {animation:gust1 2.7s ease-in-out infinite}
+body.fx-wind .layer.fgfloor    {animation:gust2 2.2s ease-in-out infinite}
+body.fx-wind .canopy-top       {animation:gust2 3.1s ease-in-out infinite}
+
+.canopy-top{position:absolute;top:0;left:0;width:100%;transform-origin:top center;
+  animation:hang 22s ease-in-out infinite}
+@keyframes hang{0%,100%{transform:translateX(-12px) rotate(-.25deg)}50%{transform:translateX(12px) rotate(.25deg)}}
+
+/* ==========================================================
+   FIREFLIES
+   ========================================================== */
+.ffly{position:absolute;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,#FFFBDC 0%,rgba(246,226,132,.72) 45%,transparent 70%);
+  animation:ffloat 22s ease-in-out infinite, fglow 4.6s ease-in-out infinite}
+@keyframes ffloat{
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(34px,-40px)}
+  50%{transform:translate(-26px,-72px)}
+  75%{transform:translate(-46px,-26px)}
+}
+@keyframes fglow{0%,100%{opacity:.08}50%{opacity:.95}}
+body.fx-sun .ffly{opacity:0;transition:opacity 1s ease}
+
+/* ==========================================================
+   WILDLIFE
+   ========================================================== */
+.critter{position:absolute;will-change:transform}
+.bob,.leg,.perch,.wing,.wingL,.wingR,.ear,.shake,.tail{transform-box:fill-box}
+
+.walker{bottom:var(--b,10px);left:-16vw;animation:strollRight linear infinite}
+.walker.leftward{left:auto;right:-16vw;animation-name:strollLeft}
+@keyframes strollRight{0%{transform:translateX(0)}100%{transform:translateX(134vw)}}
+@keyframes strollLeft {0%{transform:translateX(0) scaleX(-1)}100%{transform:translateX(-134vw) scaleX(-1)}}
+
+.bob{animation:bobby 1.6s ease-in-out infinite}
+@keyframes bobby{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+
+.leg{transform-origin:top center;animation:step 1.05s ease-in-out infinite}
+.leg.b{animation-delay:-.52s}
+@keyframes step{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-10deg)}}
+
+/* the herd is running, not strolling */
+.run .leg{animation-duration:.42s}
+.run .leg.b{animation-delay:-.21s}
+.run .bob{animation-duration:.62s}
+.run .tail{animation-duration:.7s}
+
+/* the elephant sways and flaps as it walks */
+.shake{animation:sway-body 2.2s ease-in-out infinite;transform-origin:bottom center}
+@keyframes sway-body{0%,100%{transform:rotate(-1.4deg) translateY(0)}50%{transform:rotate(1.4deg) translateY(-2px)}}
+.ear{transform-origin:left center;animation:earflap 1.5s ease-in-out infinite}
+@keyframes earflap{0%,100%{transform:rotate(0deg) scaleX(1)}50%{transform:rotate(-11deg) scaleX(.82)}}
+.trunk{transform-origin:top center;animation:trunkswing 3.1s ease-in-out infinite}
+@keyframes trunkswing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+.tail{transform-origin:top center;animation:tailswish 1.9s ease-in-out infinite}
+@keyframes tailswish{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+
+.perch{animation:breathe2 5s ease-in-out infinite;transform-origin:bottom center}
+@keyframes breathe2{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+
+.flutter{animation:flit 26s ease-in-out infinite}
+@keyframes flit{
+  0%,100%{transform:translate(0,0) rotate(-4deg)}
+  25%{transform:translate(46px,-38px) rotate(6deg)}
+  50%{transform:translate(14px,-74px) rotate(-6deg)}
+  75%{transform:translate(-40px,-30px) rotate(5deg)}
+}
+.wingL,.wingR{transform-origin:right center;animation:flap .32s ease-in-out infinite alternate}
+.wingR{transform-origin:left center}
+@keyframes flap{to{transform:scaleX(.35)}}
+
+/* ---------- birds ---------- */
+.bird{position:absolute;animation:glide linear infinite}
+@keyframes glide{
+  0%  {transform:translate(-16vw,0)}
+  35% {transform:translate(28vw,-34px)}
+  70% {transform:translate(72vw,14px)}
+  100%{transform:translate(124vw,-10px)}
+}
+@keyframes glideBack{
+  0%  {transform:translate(16vw,0) scaleX(-1)}
+  40% {transform:translate(-30vw,26px) scaleX(-1)}
+  100%{transform:translate(-124vw,-16px) scaleX(-1)}
+}
+.bird.back{animation-name:glideBack;left:auto;right:0}
+.bird .wing{transform-origin:center;animation:wingbeat 1.05s ease-in-out infinite}
+@keyframes wingbeat{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.26)}}
+
+.flock{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
+body.fx-birds .flock{opacity:1}
+
+.herd{position:absolute;left:0;bottom:0;width:100%;height:220px;
+  opacity:0;transition:opacity .9s ease}
+body.fx-herd .herd{opacity:1}
+
+/* ==========================================================
+   WEATHER PARTICLES  (in the foreground, so they read clearly)
+   ========================================================== */
+.weather{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+body.fx-rain .weather.rain{opacity:1}
+body.fx-snow .weather.snow{opacity:1}
+body.fx-wind .weather.wind{opacity:1}
+
+/* individual drops */
+.drop{
+  position:absolute;top:-12%;width:2px;border-radius:99px;
+  background:linear-gradient(rgba(226,240,255,0),rgba(226,240,255,.95));
+  animation:fall-rain linear infinite;
+}
+@keyframes fall-rain{
+  0%  {transform:translate(0,0);opacity:0}
+  6%  {opacity:1}
+  100%{transform:translate(-90px,116vh);opacity:.4}
+}
+
+/* a moving sheet of rain so it reads as heavy weather */
+.rain-sheet{
+  position:absolute;inset:-20%;opacity:.5;
+  background:repeating-linear-gradient(74deg,
+    rgba(220,236,255,.34) 0px,rgba(220,236,255,.34) 1.5px,
+    transparent 1.5px,transparent 9px);
+  animation:sheet .42s linear infinite;
+}
+@keyframes sheet{from{transform:translate(0,0)}to{transform:translate(-90px,300px)}}
+
+.splash{position:absolute;bottom:8px;width:22px;height:7px;border-radius:50%;
+  border:1.6px solid rgba(214,234,255,.85);border-top:none;
+  animation:ripple 1.5s ease-out infinite;opacity:0}
+@keyframes ripple{0%{transform:scale(.2);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+
+/* ---------- thunderstorm ---------- */
+.flash{position:absolute;inset:0;background:#EAF2FF;opacity:0;mix-blend-mode:screen}
+body.fx-rain .flash{animation:strike 9s linear infinite}
+@keyframes strike{
+  0%,100%{opacity:0}
+  70%{opacity:0}
+  71%{opacity:.85}
+  73%{opacity:.05}
+  75%{opacity:.7}
+  78%{opacity:0}
+}
+.bolt{position:absolute;top:0;opacity:0}
+body.fx-rain .bolt{animation:boltshow 9s linear infinite}
+@keyframes boltshow{
+  0%,100%{opacity:0}
+  70.5%{opacity:0}
+  71.5%{opacity:.95}
+  74%{opacity:0}
+  75.5%{opacity:.8}
+  77.5%{opacity:0}
+}
+
+/* ---------- snow ---------- */
+.flake{position:absolute;top:-8%;border-radius:50%;background:#fff;
+  box-shadow:0 0 6px rgba(255,255,255,.95);animation:fall-snow linear infinite}
+@keyframes fall-snow{
+  0%  {transform:translateY(0) translateX(0) rotate(0);opacity:0}
+  10% {opacity:.95}
+  100%{transform:translateY(114vh) translateX(70px) rotate(300deg);opacity:.25}
+}
+
+/* ---------- leaves on the wind ---------- */
+.blown{position:absolute;animation:blow linear infinite}
+@keyframes blow{
+  0%  {transform:translate(-14vw,0) rotate(0);opacity:0}
+  10% {opacity:.95}
+  50% {transform:translate(48vw,-70px) rotate(340deg)}
+  100%{transform:translate(120vw,30px) rotate(720deg);opacity:.2}
+}
+
+/* ==========================================================
+   THE BUTTONS
+   ========================================================== */
+.fxbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.fxbtn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:12px;font-weight:600;
+  padding:6px 11px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:rgba(255,255,255,.9);color:var(--ink-soft);
+  transition:transform .16s ease,box-shadow .16s ease,background .2s ease,color .2s ease;
+}
+.fxbtn:hover{transform:translateY(-2px);box-shadow:var(--shadow);color:var(--ink)}
+.fxbtn svg{flex:none}
+.fxbtn.on{color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(32,34,67,.20)}
+.fxbtn.on[data-fx="rain"] {background:#4A6A93}
+.fxbtn.on[data-fx="sun"]  {background:#E0A233}
+.fxbtn.on[data-fx="snow"] {background:#7EA6C9}
+.fxbtn.on[data-fx="wind"] {background:#6E9C86}
+.fxbtn.on[data-fx="herd"] {background:#8A6A45}
+.fxbtn.on[data-fx="birds"]{background:#4F7D68}
+
+@media(max-width:1180px){.fxbtn span{display:none}.fxbtn{padding:7px 9px}}
+@media(max-width:640px){.fxbar{max-width:190px;overflow-x:auto}}
+
+/* the page banners keep only a whisper of their own tree line now */
+.banner .trees.far {opacity:.12}
+.banner .trees.mid {opacity:.22}
+.banner .trees.near{opacity:.40}
+
+@media (prefers-reduced-motion: reduce){
+  .world *,.foreground *{animation:none !important}
+}
