@@ -213,3 +213,186 @@
 /* the modal chrome follows the theme like everything else */
 .modal-head,.modal-foot{background:var(--s2);border-color:var(--edge)}
 .modal-x{color:var(--ink-quiet)}
+
+/* ==========================================================
+   KPI TABLE
+   The portfolio sheet has 16 period groups, each two columns
+   wide, so this grid is far wider than the page. It scrolls
+   sideways in its own box — the page itself never does — and
+   the KPI column and the header rows stay pinned while it
+   moves. Every colour comes from the theme variables.
+   ========================================================== */
+.kpi-wrap{
+  overflow-x:auto;
+  overflow-y:visible;
+  background:var(--s1);
+  border:1px solid var(--edge);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  -webkit-overflow-scrolling:touch;
+}
+.kpi-table{
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:12.5px;
+  color:var(--ink);
+  min-width:100%;
+}
+
+/* ---------- headers ---------- */
+.kpi-table thead th{
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:var(--s2);
+  border-bottom:1px solid var(--edge);
+  border-left:1px solid var(--edge);
+  padding:7px 6px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.03em;
+  white-space:nowrap;
+  text-align:center;
+}
+.kpi-table thead tr:nth-child(2) th{top:29px;z-index:2}
+.kpi-table thead th.k-sub{
+  font-size:10px;
+  font-weight:600;
+  color:var(--ink-quiet);
+  letter-spacing:.06em;
+  padding:4px 6px;
+  min-width:38px;
+}
+/* the quarter pairs are the totals, so they sit a shade darker */
+.kpi-table th.k-quarter,.kpi-table td.k-quarter{
+  background:var(--s3);
+}
+.kpi-table thead th.k-quarter{
+  color:color-mix(in srgb, var(--accent) 52%, var(--ink));
+}
+
+/* ---------- the pinned KPI column ---------- */
+.kpi-table th.k-name{
+  position:sticky;
+  left:0;
+  z-index:4;
+  width:340px;
+  min-width:340px;
+  max-width:340px;
+  background:var(--card);
+  border-right:2px solid var(--edge);
+  border-bottom:1px solid var(--edge);
+  padding:9px 26px 9px 12px;
+  text-align:left;
+  font-weight:500;
+  vertical-align:top;
+}
+.kpi-table thead th.k-corner{
+  z-index:6;
+  background:var(--s2);
+  vertical-align:middle;
+  text-align:left;
+}
+.kpi-table .k-text{
+  display:block;
+  font-size:12.5px;
+  line-height:1.45;
+  font-weight:500;
+}
+.kpi-table .k-note{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  line-height:1.4;
+  color:var(--ink-quiet);
+}
+.kpi-table .k-del{
+  position:absolute;
+  top:6px;
+  right:4px;
+  opacity:0;
+  font-size:15px;
+  transition:opacity .15s ease;
+}
+.kpi-table tr:hover .k-del{opacity:1}
+
+/* ---------- area grouping rows ---------- */
+.kpi-table tr.k-arearow th{
+  position:sticky;
+  left:0;
+  z-index:4;
+  background:color-mix(in srgb, var(--accent) 13%, var(--card));
+  border-top:1px solid var(--edge);
+  border-bottom:1px solid var(--edge);
+  padding:6px 12px;
+  text-align:left;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:color-mix(in srgb, var(--accent) 48%, var(--ink));
+}
+
+/* ---------- figure cells ---------- */
+.kpi-table td.k-cell{
+  border-left:1px solid var(--edge);
+  border-bottom:1px solid var(--edge);
+  padding:0;
+  text-align:center;
+  vertical-align:middle;
+  min-width:38px;
+}
+.kpi-table td.k-cell > span{
+  display:block;
+  padding:7px 4px;
+  min-height:30px;
+  font-variant-numeric:tabular-nums;
+  font-size:12.5px;
+  line-height:1.3;
+  border-radius:0;
+}
+.kpi-table .k-p{color:var(--ink-quiet)}
+.kpi-table .k-a{font-weight:700}
+.kpi-table tbody tr:hover td.k-cell{
+  background:color-mix(in srgb, var(--accent) 7%, var(--card));
+}
+
+/* how the achieved figure reads against its target */
+.kpi-table td.k-met  {background:color-mix(in srgb, #3d9c73 20%, var(--card))}
+.kpi-table td.k-near {background:color-mix(in srgb, #d2a13f 22%, var(--card))}
+.kpi-table td.k-miss {background:color-mix(in srgb, #c9748c 20%, var(--card))}
+.kpi-table td.k-met  .k-a{color:color-mix(in srgb, #3d9c73 58%, var(--ink))}
+.kpi-table td.k-near .k-a{color:color-mix(in srgb, #d2a13f 62%, var(--ink))}
+.kpi-table td.k-miss .k-a{color:color-mix(in srgb, #c9748c 58%, var(--ink))}
+/* a hovered row must not wash the verdict colours away */
+.kpi-table tbody tr:hover td.k-met {background:color-mix(in srgb, #3d9c73 27%, var(--card))}
+.kpi-table tbody tr:hover td.k-near{background:color-mix(in srgb, #d2a13f 29%, var(--card))}
+.kpi-table tbody tr:hover td.k-miss{background:color-mix(in srgb, #c9748c 27%, var(--card))}
+
+/* ---------- legend ---------- */
+.k-legend{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:9px 0 0;
+  font-size:11.5px;
+  color:var(--ink-quiet);
+}
+.k-key{
+  width:11px;
+  height:11px;
+  border-radius:3px;
+  border:1px solid var(--edge);
+  display:inline-block;
+}
+/* the verdict colours above are scoped to table cells, so the legend
+   keys need their own copy of the same three tints */
+.k-key.k-met {background:color-mix(in srgb, #3d9c73 30%, var(--card))}
+.k-key.k-near{background:color-mix(in srgb, #d2a13f 34%, var(--card))}
+.k-key.k-miss{background:color-mix(in srgb, #c9748c 30%, var(--card))}
+.k-legend .k-key + .k-key{margin-left:9px}
+
+@media(max-width:760px){
+  .kpi-table th.k-name{width:200px;min-width:200px;max-width:200px}
+}

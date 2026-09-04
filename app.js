@@ -357,6 +357,25 @@ function runAction(a, act){
   }
   if(a === 'import-goals'){ go('#/settings'); return; }
 
+  /* ---------- KPIs ---------- */
+  if(a === 'add-kpi'){
+    const target = act.dataset.p || pid;
+    const k = blankKpi();
+    person(target).kpis.push(k);
+    save(); flashId = k.id;
+    if(location.hash !== '#/p/' + target) go('#/p/' + target); else render();
+    return;
+  }
+  if(a === 'del-kpi'){
+    const p = person(pid);
+    const k = act.dataset.k;
+    const gone = p.kpis.find(x => x.id === k);
+    if(!gone) return;
+    if(!confirm('Remove this KPI and its targets?\n\n' + (gone.name || '').slice(0, 120))) return;
+    p.kpis = p.kpis.filter(x => x.id !== k);
+    save(); render(); return;
+  }
+
   if(a === 'add-sub'){
     goalOf(person(pid), gid).subtasks.push({ id:uid('s'), text:'New subtask', done:false });
     save(); render(); return;
@@ -444,6 +463,60 @@ function runAction(a, act){
       r.onload = () => {
         try{ DB = JSON.parse(r.result); normalise(); save(); render(); toast('Backup restored'); }
         catch(err){ toast('That file could not be read', {kind:'warn'}); }
+      };
+      r.readAsText(f);
+    };
+    inp.click();
+    return;
+  }
+  /* ---------- KPI merge import ----------
+     Restore replaces the whole database. This one only touches the
+     kpis on each person, so tasks, budget and check-ins are left
+     exactly as they are. The file is { people: { "Name": [kpi,...] } }
+     and people are matched on name; an unmatched name is added. */
+  if(a === 'import-kpis'){
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json';
+    inp.onchange = () => {
+      const f = inp.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        const before = JSON.stringify(DB);
+        let parsed;
+        try{ parsed = JSON.parse(r.result); }
+        catch(err){ toast('That file could not be read', {kind:'warn'}); return; }
+
+        const incoming = parsed && parsed.people;
+        if(!incoming || typeof incoming !== 'object'){
+          toast('No people found in that file', {kind:'warn'}); return;
+        }
+
+        const key = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g,'');
+        let touched = 0, added = 0, total = 0;
+
+        Object.keys(incoming).forEach(name => {
+          const list = incoming[name];
+          if(!Array.isArray(list)) return;
+          let p = DB.people.find(x => key(x.name) === key(name));
+          if(!p){
+            p = blankPerson(name, (DB.people.length % 6) + 1);
+            DB.people.push(p); added++;
+          }
+          p.kpis = list.map(k => Object.assign(blankKpi(k.name), {
+            area: k.area || '',
+            note: k.note || '',
+            periods: Object.assign(blankKpiPeriods(), k.periods || {})
+          }));
+          touched++; total += p.kpis.length;
+        });
+
+        if(!touched){ toast('Nothing in that file matched', {kind:'warn'}); return; }
+        normalise(); save(); render();
+        toast(total + ' KPIs loaded for ' + touched + ' member'
+              + (touched === 1 ? '' : 's')
+              + (added ? ' (' + added + ' newly added)' : ''), {
+          undo: () => { DB = JSON.parse(before); normalise(); save(); render(); }
+        });
       };
       r.readAsText(f);
     };

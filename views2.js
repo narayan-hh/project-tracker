@@ -159,6 +159,7 @@ function viewSettings(){
     ${toolbar(`
       <button class="btn go" data-act="export">Export full backup</button>
       <button class="btn" data-act="import-json">Restore backup</button>
+      <button class="btn" data-act="import-kpis">Load KPIs</button>
       <button class="btn" data-act="selftest">Test buttons</button>
       <span class="spacer"></span>
       <button class="btn danger" data-act="reset">Reset everything</button>`)}

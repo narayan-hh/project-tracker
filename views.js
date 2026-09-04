@@ -93,6 +93,92 @@ function donut(pct, colour, size){
 
 /* status chips */
 const chip = s => `<span class="status ${s.cls}">${s.label}</span>`;
+
+/* ==========================================================
+   KPI TABLE
+   Laid out exactly like the portfolio sheet: one row per KPI,
+   then Planned / Achieved for each month with a quarter total
+   after every third month. It is wide by nature, so the whole
+   grid scrolls sideways inside its own box and the KPI column
+   stays pinned to the left while you scroll.
+   ========================================================== */
+function kpiNum(v){
+  if(v === '' || v == null) return null;
+  const n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
+  return isNaN(n) ? null : n;
+}
+
+/* how a cell reads against its target: only judged when both
+   numbers are present, so a blank month is never called a miss */
+function kpiCellState(planned, achieved){
+  const p = kpiNum(planned), a = kpiNum(achieved);
+  if(a === null) return '';
+  if(p === null || p === 0) return a > 0 ? 'k-met' : '';
+  if(a >= p) return 'k-met';
+  if(a >= p * 0.6) return 'k-near';
+  return 'k-miss';
+}
+
+function kpiTable(p, base){
+  if(!p.kpis.length){
+    return `<div class="empty">No KPIs yet. Use <b>+ Add KPI</b>, or bring them in
+            from a portfolio sheet with <b>Import</b>.</div>`;
+  }
+
+  const head1 = KPI_PERIODS.map(per =>
+    `<th colspan="2" class="k-per k-${per.type}" title="${esc(per.full)}">${per.label}</th>`).join('');
+  const head2 = KPI_PERIODS.map(per =>
+    `<th class="k-sub k-${per.type}" title="Target planned">P</th>`
+  + `<th class="k-sub k-${per.type}" title="Target achieved">A</th>`).join('');
+
+  let lastArea = null;
+  const rows = p.kpis.map(k => {
+    /* repeat the area only when it changes, the way the sheet groups them */
+    const areaRow = (k.area && k.area !== lastArea)
+      ? `<tr class="k-arearow"><th colspan="${1 + KPI_PERIODS.length * 2}">${esc(k.area)}</th></tr>`
+      : '';
+    lastArea = k.area || lastArea;
+
+    const cells = KPI_PERIODS.map(per => {
+      const cell = k.periods[per.k] || { planned:'', achieved:'' };
+      const st = kpiCellState(cell.planned, cell.achieved);
+      const path = `${base}.kpis#${k.id}.periods.${per.k}`;
+      return `<td class="k-cell k-${per.type}">`
+           +   ed(`${path}.planned`, cell.planned, '-', 'span', 'k-p')
+           + `</td>`
+           + `<td class="k-cell k-${per.type} ${st}">`
+           +   ed(`${path}.achieved`, cell.achieved, '-', 'span', 'k-a')
+           + `</td>`;
+    }).join('');
+
+    return areaRow + `
+      <tr data-kpi="${k.id}">
+        <th class="k-name">
+          ${ed(`${base}.kpis#${k.id}.name`, k.name, 'What is the KPI?', 'div', 'k-text')}
+          ${k.note ? `<span class="k-note">${esc(k.note)}</span>` : ''}
+          <button class="x k-del" data-act="del-kpi" data-k="${k.id}" title="Remove this KPI">&times;</button>
+        </th>
+        ${cells}
+      </tr>`;
+  }).join('');
+
+  return `
+    <div class="kpi-wrap">
+      <table class="kpi-table">
+        <thead>
+          <tr><th class="k-name k-corner" rowspan="2">Key Performance Indicator</th>${head1}</tr>
+          <tr>${head2}</tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p class="k-legend">
+      <span class="k-key k-met"></span> met or exceeded
+      <span class="k-key k-near"></span> within 60%
+      <span class="k-key k-miss"></span> short
+      <span class="muted">&nbsp; P = target planned, A = target achieved. Click any figure to edit it.</span>
+    </p>`;
+}
 const taskSelect = (path, v) =>
   `<select class="mini-sel" data-act="set-task-status" data-path="${path}">
      ${TASK_STATUS.map(s => `<option value="${s.v}" ${s.v===v?'selected':''}>${s.label}</option>`).join('')}
@@ -454,6 +540,14 @@ function viewPerson(id){
     </div>
     ${p.goals.length ? `<div class="proj-grid">${goals}</div>`
       : `<div class="empty">No goals yet. Use <b>+ Add goal</b> to create one.</div>`}
+
+    <div class="section-head reveal">
+      <h2>KPIs &amp; targets <span class="muted">2026-27</span></h2>
+      <span class="spacer"></span>
+      <span class="muted">${p.kpis.length} KPI${p.kpis.length === 1 ? '' : 's'}</span>
+      <button class="btn tiny" data-act="add-kpi" data-p="${p.id}">+ Add KPI</button>
+    </div>
+    ${kpiTable(p, base)}
 
     <div class="section-head reveal"><h2>Performance record</h2></div>
     <div class="two">

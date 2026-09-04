@@ -26,6 +26,30 @@ const PRIORITIES = [
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
 
+/* ---------- KPI periods ----------
+   The programme year runs April to March, and the portfolio sheets lay
+   the columns out in that order with a quarter total after every third
+   month. Keep this array in that same order: the KPI table renders
+   straight from it, so the screen matches the sheet column for column. */
+const KPI_PERIODS = [
+  { k:'apr', label:'Apr',  full:'April 2026',     type:'month'   },
+  { k:'may', label:'May',  full:'May 2026',       type:'month'   },
+  { k:'jun', label:'Jun',  full:'June 2026',      type:'month'   },
+  { k:'q1',  label:'Q1',   full:'Quarter 1',      type:'quarter' },
+  { k:'jul', label:'Jul',  full:'July 2026',      type:'month'   },
+  { k:'aug', label:'Aug',  full:'August 2026',    type:'month'   },
+  { k:'sep', label:'Sep',  full:'September 2026', type:'month'   },
+  { k:'q2',  label:'Q2',   full:'Quarter 2',      type:'quarter' },
+  { k:'oct', label:'Oct',  full:'October 2026',   type:'month'   },
+  { k:'nov', label:'Nov',  full:'November 2026',  type:'month'   },
+  { k:'dec', label:'Dec',  full:'December 2026',  type:'month'   },
+  { k:'q3',  label:'Q3',   full:'Quarter 3',      type:'quarter' },
+  { k:'jan', label:'Jan',  full:'January 2027',   type:'month'   },
+  { k:'feb', label:'Feb',  full:'February 2027',  type:'month'   },
+  { k:'mar', label:'Mar',  full:'March 2027',     type:'month'   },
+  { k:'q4',  label:'Q4',   full:'Quarter 4',      type:'quarter' }
+];
+
 const uid = p => p + '-' + Math.random().toString(36).slice(2,9);
 /* the date here, not in UTC — otherwise before 5.30am the app
    would think it was still yesterday and flag things as overdue */
@@ -48,11 +72,22 @@ function blankGoal(name){
   return { id:uid('g'), name:name||'New goal', objective:'', timeline:'',
     status:'plan', comments:[], subtasks:[] };
 }
+/* every period starts empty; '' means the sheet cell was blank, which
+   is different from a planned target of 0 */
+function blankKpiPeriods(){
+  const o = {};
+  KPI_PERIODS.forEach(p => { o[p.k] = { planned:'', achieved:'' }; });
+  return o;
+}
+function blankKpi(name){
+  return { id:uid('k'), area:'', name:name||'New KPI', note:'',
+    periods: blankKpiPeriods() };
+}
 function blankPerson(name, palette){
   return {
     id: (name||'member').toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Math.random().toString(36).slice(2,5),
     name: name || 'New member', role:'Role to be added', palette: palette || 1,
-    goals:[], checkins:[ blankCheckin() ], wins:[], concerns:[]
+    goals:[], kpis:[], checkins:[ blankCheckin() ], wins:[], concerns:[]
   };
 }
 
@@ -157,6 +192,23 @@ function normalise(){
     p.goals.forEach(g => {
       g.comments = Array.isArray(g.comments) ? g.comments : [];
       g.subtasks = Array.isArray(g.subtasks) ? g.subtasks : [];
+    });
+    /* kpis arrived after the first release, so older saved data and
+       older backups will not have them */
+    p.kpis = Array.isArray(p.kpis) ? p.kpis : [];
+    p.kpis.forEach(k => {
+      if(k.area === undefined) k.area = '';
+      if(k.note === undefined) k.note = '';
+      if(!k.id) k.id = uid('k');
+      if(!k.periods || typeof k.periods !== 'object') k.periods = blankKpiPeriods();
+      /* fill in any period the saved copy is missing, and make sure both
+         halves of every pair exist so the table never renders undefined */
+      KPI_PERIODS.forEach(per => {
+        const cell = k.periods[per.k];
+        if(!cell || typeof cell !== 'object'){ k.periods[per.k] = { planned:'', achieved:'' }; return; }
+        if(cell.planned  === undefined || cell.planned  === null) cell.planned  = '';
+        if(cell.achieved === undefined || cell.achieved === null) cell.achieved = '';
+      });
     });
   });
   DB.myTasks.forEach(t => {
