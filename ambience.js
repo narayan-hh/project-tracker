@@ -354,7 +354,32 @@ function buildForeground(){
     <div class="critter flutter" style="right:16%;bottom:150px;animation-delay:-9s">${butterfly(0.8,'#C77FA6')}</div>
     <div class="critter flutter" style="left:34%;bottom:104px;animation-delay:-17s">${butterfly(0.7,'#7FA8C7')}</div>`;
 
-  /* --- rain --- */
+  fg.innerHTML = `
+    <div class="fg-scene">
+      ${edgeBack}
+      ${edgeMid}
+      ${near}
+      ${floor}
+      <div class="mistband b3"></div>
+      ${residents}
+      ${perched}
+      <div class="herd" id="herd"></div>
+    </div>`;
+}
+
+/* ==========================================================
+   WEATHER — rain, snow and wind-blown leaves.
+
+   These used to be built here with the treeline, which put
+   about three hundred nodes into every page load — each one
+   carrying an animation, and none of them ever visible, since
+   only a body.fx-* class shows them and nothing on screen sets
+   one. They are made the first time an effect is switched on.
+   ========================================================== */
+function buildWeather(){
+  const fg = document.getElementById('foreground');
+  if(!fg || document.getElementById('weatherlayers')) return;
+
   const drops = [];
   for(let i = 0; i < 170; i++){
     drops.push(`<i class="drop" style="left:${(i*0.61 % 104).toFixed(1)}%;
@@ -372,7 +397,6 @@ function buildForeground(){
       <path d="M40,0 L10,120 L32,120 L18,230 L60,96 L36,96 L52,0 Z" opacity=".95"/>
     </svg></i>`;
 
-  /* --- snow --- */
   const flakes = [];
   for(let i = 0; i < 80; i++){
     const s = 3 + (i % 4) * 1.7;
@@ -382,7 +406,6 @@ function buildForeground(){
       animation-delay:${-(i*0.28).toFixed(2)}s;opacity:${(0.5 + (i%5)*0.1).toFixed(2)}"></i>`);
   }
 
-  /* --- wind-blown leaves --- */
   const blown = [];
   const leafCols = ['#7CBB98','#A8CF8E','#C2B78A','#D9A441','#8FC3A6','#E08A4A'];
   for(let i = 0; i < 30; i++){
@@ -394,7 +417,9 @@ function buildForeground(){
       </svg></i>`);
   }
 
-  fg.innerHTML = `
+  const box = document.createElement('div');
+  box.id = 'weatherlayers';
+  box.innerHTML = `
     <div class="weather rain">
       <div class="rain-sheet"></div>
       ${drops.join('')}
@@ -402,18 +427,8 @@ function buildForeground(){
       ${boltSvg(22,1)}${boltSvg(68,0.8)}
     </div>
     <div class="weather snow">${flakes.join('')}</div>
-    <div class="weather wind">${blown.join('')}</div>
-
-    <div class="fg-scene">
-      ${edgeBack}
-      ${edgeMid}
-      ${near}
-      ${floor}
-      <div class="mistband b3"></div>
-      ${residents}
-      ${perched}
-      <div class="herd" id="herd"></div>
-    </div>`;
+    <div class="weather wind">${blown.join('')}</div>`;
+  fg.insertBefore(box, fg.firstChild);
 }
 
 /* ==========================================================
@@ -498,6 +513,7 @@ function saveFx(list){
   try{ localStorage.setItem(FX_KEY, JSON.stringify(list)); }catch(e){}
 }
 function applyFx(list){
+  if(list.some(x => WEATHER.includes(x) || x === 'wind')) buildWeather();
   FX.forEach(f => document.body.classList.toggle('fx-' + f.id, list.includes(f.id)));
   document.querySelectorAll('.fxbtn').forEach(b =>
     b.classList.toggle('on', list.includes(b.dataset.fx)));
@@ -507,7 +523,11 @@ function toggleFx(id){
   if(list.includes(id)){
     list = list.filter(x => x !== id);
   } else {
-    if(WEATHER.includes(id)) list = list.filter(x => !WEATHER.includes(x));
+    if(WEATHER.includes(id)){
+      list = list.filter(x => !WEATHER.includes(x));
+      buildWeather();
+    }
+    if(id === 'wind') buildWeather();
     list.push(id);
     if(id === 'herd') renderHerd();     /* new animals every time it is switched on */
   }

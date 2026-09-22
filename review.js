@@ -103,22 +103,25 @@ function viewReview(){
   const money = n => '₹' + (Number(n)||0).toLocaleString('en-IN');
   const diff = i.spendThisMonth - i.spendLastMonth;
 
-  /* a block of rows, or a calm line when there is nothing to do */
+  /* One block per thing worth looking at. Only the ones that
+     actually hold something get a card of their own; the quiet
+     ones are named together in a single line underneath, so a
+     calm week reads as a calm week rather than nine empty boxes. */
   const block = (title, note, items, draw, tone) => `
     <div class="panel reveal rv ${tone||''}">
       <div class="section-head" style="margin:0 0 10px">
         <h2>${title}</h2>
-        <span class="rv-count ${items.length?'':'zero'}">${items.length}</span>
+        <span class="rv-count">${items.length}</span>
         <span class="spacer"></span>
         <span class="muted">${note}</span>
       </div>
-      ${items.length ? items.map(draw).join('') : `<p class="rv-clear">All clear here.</p>`}
+      ${items.map(draw).join('')}
     </div>`;
 
   const taskRow = t => `
     <div class="mini-row">
       <span class="dot ${taskStatus(t.status).cls}"></span>
-      <span class="t">${esc(t.name)}</span>
+      <span class="t" title="${esc(t.name)}">${esc(t.name)}</span>
       <span class="m">${t.due ? esc(t.due) : esc(t.month)}</span>
       <span class="status s-plan">P${t.priority}</span>
     </div>`;
@@ -126,7 +129,7 @@ function viewReview(){
   const remRow = r => `
     <div class="mini-row">
       <span class="dot s-risk"></span>
-      <span class="t">${esc(r.title)}</span>
+      <span class="t" title="${esc(r.title)}">${esc(r.title)}</span>
       <span class="m">${esc(r.date)}</span>
       ${r.who ? `<span class="status">${esc(r.who)}</span>` : ''}
     </div>`;
@@ -134,7 +137,7 @@ function viewReview(){
   const goalRow = x => `
     <a class="mini-row link" href="#/p/${x.p.id}/g/${x.g.id}">
       <span class="dot ${goalStatus(x.g.status).cls}"></span>
-      <span class="t">${esc(x.g.name)}</span>
+      <span class="t" title="${esc(x.g.name)}">${esc(x.g.name)}</span>
       <span class="m">${esc(x.p.name)}</span>
       ${chip(goalStatus(x.g.status))}
     </a>`;
@@ -142,10 +145,27 @@ function viewReview(){
   const staleRow = x => `
     <a class="mini-row link" href="#/p/${x.p.id}">
       <span class="dot s-hold"></span>
-      <span class="t">${esc(x.p.name)}</span>
+      <span class="t" title="${esc(x.p.name)}">${esc(x.p.name)}</span>
       <span class="m">${x.last ? esc(x.last) : 'never'}</span>
       <span class="status s-risk">${x.age === null ? 'no check-in yet' : x.age + ' days ago'}</span>
     </a>`;
+
+  /* The nine things worth checking, most urgent first. Splitting
+     them here — rather than in the markup — is what lets the page
+     lead with the work and leave the quiet ones to one line. */
+  const blocks = [
+    ['Overdue',                 'past their due date',              i.overdue,        taskRow,  'bad'],
+    ['Overdue reminders',       'chase these',                     i.remOverdue,     remRow,   'bad'],
+    ['Goals needing attention', 'at risk or on hold',               i.atRisk,         goalRow,  'bad'],
+    ['People to check in with', 'no check-in in ' + STALE_DAYS + '+ days', i.stale,   staleRow, 'warn'],
+    ['Due this week',           'next 7 days',                      i.dueThisWeek,   taskRow,  ''],
+    ['Reminders coming up',     'next 7 days',                      i.remSoon,       remRow,   ''],
+    ['Finished this week',      'well done',                        i.doneThisWeek,  taskRow,  'good'],
+    ['Goals with no subtasks',  'not broken down yet',              i.notBrokenDown, goalRow,  'warn'],
+    ['Tasks with no due date',  'add a date so they show up above', i.noDate,        taskRow,  'warn']
+  ];
+  const busy = blocks.filter(b => b[2].length);
+  const calm = blocks.filter(b => !b[2].length);
 
   return `
   <div class="page t-review">
@@ -171,17 +191,16 @@ function viewReview(){
              : money(-diff) + ' less than last month'}</em></div>
     </div>
 
-    <div class="rv-grid">
-      ${block('Overdue', 'past their due date', i.overdue, taskRow, 'bad')}
-      ${block('Due this week', 'next 7 days', i.dueThisWeek, taskRow)}
-      ${block('Finished this week', 'well done', i.doneThisWeek, taskRow, 'good')}
-      ${block('Overdue reminders', 'chase these', i.remOverdue, remRow, 'bad')}
-      ${block('Reminders coming up', 'next 7 days', i.remSoon, remRow)}
-      ${block('Goals needing attention', 'at risk or on hold', i.atRisk, goalRow, 'bad')}
-      ${block('People to check in with', 'no check-in in ' + STALE_DAYS + '+ days', i.stale, staleRow, 'warn')}
-      ${block('Goals with no subtasks', 'not broken down yet', i.notBrokenDown, goalRow, 'warn')}
-      ${block('Tasks with no due date', 'add a date so they show up above', i.noDate, taskRow, 'warn')}
-    </div>
+    <div class="rv-grid">${busy.map(b => block(b[0], b[1], b[2], b[3], b[4])).join('')}</div>
+
+    ${calm.length ? `
+      <div class="panel reveal rv good rv-allclear-panel">
+        <div class="rv-allclear">
+          <span class="rv-tick" aria-hidden="true">&#10003;</span>
+          <p class="rv-names">All clear on
+            <b>${calm.map(b => esc(b[0].toLowerCase())).join('</b>, <b>')}</b>.</p>
+        </div>
+      </div>` : ''}
 
     <div class="foot">Worked out from what you have recorded &middot; nothing to fill in here</div>
   </div>`;

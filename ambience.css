@@ -12,7 +12,7 @@
 .world{position:fixed;inset:0;z-index:0;overflow:hidden}
 
 /* the foreground sits above the page content but below the top bar */
-.foreground{position:fixed;inset:0;z-index:24;overflow:hidden}
+.foreground{position:fixed;inset:0;z-index:1;overflow:hidden}
 
 /* ---------- sky tints ---------- */
 .tint{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease}
@@ -90,7 +90,7 @@ body.fx-sun  .cloud.hover{opacity:.2}
    THE TITLE, WRITTEN ACROSS THE SKY
    ========================================================== */
 .sky-title{
-  position:fixed;top:15vh;left:0;right:0;z-index:5;
+  position:fixed;top:11vh;left:0;right:0;z-index:5;
   text-align:center;pointer-events:none;
   opacity:0;transform:translateY(14px);
   transition:opacity .8s ease,transform .8s ease;
@@ -118,7 +118,7 @@ body.fx-rain .sky-title p{color:rgba(226,238,252,.62);text-shadow:0 2px 18px rgb
 body.fx-sun  .sky-title h1{color:rgba(150,110,40,.32)}
 
 /* the transparent space on the home page that lets the sky show through */
-.sky-gap{height:44vh;min-height:250px}
+.sky-gap{height:min(30vh,210px);min-height:150px}
 
 /* ==========================================================
    MIST

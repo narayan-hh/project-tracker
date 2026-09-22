@@ -1,0 +1,351 @@
+/* ==========================================================
+   dashboard.css — the overview at the top of My Tasks, and the
+   colour coding that runs from it down through the task list.
+
+   Three states, three colours, used everywhere on the page:
+
+     Needs attention   rose    #c9748c   open and past its due date
+     On track          amber   #d2a13f   open and still in time
+     Completed         green   #3d9c73   finished
+
+   Those three hues are already the app's own — the status chips,
+   the KPI quarters and the weekly review edges use them. Nothing
+   new is introduced here.
+
+   Every colour below is mixed against the theme's --card and
+   --ink, so the tints stay mild on the light themes and turn into
+   deep, quiet washes on the dark ones without being written out
+   twelve times.
+
+   Loaded last, and the card and column rules are written with a
+   body[class] prefix, because themes.css paints .task-card and
+   .col from a higher-specificity selector on the three dark
+   themes and would otherwise win.
+   ========================================================== */
+
+body[class]{
+  --st-risk : #c9748c;
+  --st-track: #d2a13f;
+  --st-done : #3d9c73;
+}
+
+/* ==========================================================
+   1. THE OVERVIEW
+
+   Four figures across the top, then four panels in a strict
+   two-by-two grid. Two rules keep it from looking accidental:
+
+     - the tiles are equal fractions of the row, so four of them
+       are always exactly the same width
+     - the panels stretch to the tallest in their row, so a row
+       never has one deep panel and one shallow one beside it
+
+   Both were wrong in the first version of this page.
+   ========================================================== */
+.dash-tiles{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin:0 0 16px;
+}
+.dash-tiles .tile{min-height:100px}
+@media(max-width:1000px){.dash-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:359px){.dash-tiles{grid-template-columns:minmax(0,1fr)}}
+
+/* the figure in a tile takes its state's colour; the label under
+   it stays ordinary ink, so the number is the only thing shouting */
+.tile.st-risk  b{color:color-mix(in srgb, var(--st-risk)  56%, var(--ink))}
+.tile.st-track b{color:color-mix(in srgb, var(--st-track) 62%, var(--ink))}
+.tile.st-done  b{color:color-mix(in srgb, var(--st-done)  56%, var(--ink))}
+
+.dash-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  align-items:stretch;          /* both panels in a row match */
+  margin-bottom:8px;
+}
+@media(max-width:900px){.dash-grid{grid-template-columns:minmax(0,1fr)}}
+
+.dash-panel{
+  display:flex;flex-direction:column;
+  padding:18px 20px;
+}
+.dash-grid .section-head{margin:0 0 14px;flex:none}
+.dash-grid .section-head h2{font-size:16px}
+
+/* the body of a panel takes the slack, so four panels of
+   different content still line up top and bottom */
+.dash-ring,.dash-urgent,.dash-bars{flex:1;min-height:0}
+
+/* ==========================================================
+   2. THE WHEEL
+   Three wedges, the total in the middle, and the figures beside
+   it. Nothing here asks you to judge a quantity by eye.
+
+   Called .stwheel and not .ring: sections.css already owns
+   .ring for the round avatar in a banner, which carries a pale
+   mint gradient and a white inset ring. An SVG borrowing that
+   name picked up both, and the donut came out sitting on a
+   mint disc with a ring around it.
+   ========================================================== */
+body[class]{--stwheel-track:color-mix(in srgb, var(--card) 86%, var(--ink))}
+
+.dash-ring{
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  justify-content:center;
+}
+.stwheel{width:150px;height:150px;flex:none}
+.stwheel-arc{transition:stroke-dasharray .5s cubic-bezier(.4,0,.2,1)}
+.stwheel-total{
+  font-size:34px;font-weight:700;fill:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.stwheel-cap{font-size:11.5px;fill:var(--ink-quiet)}
+
+.stwheel-key{flex:1;min-width:186px;display:flex;flex-direction:column;gap:2px}
+.stwheel-row{
+  display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;
+  align-items:center;gap:10px;
+  padding:8px 0;font-size:13px;
+}
+.stwheel-row + .stwheel-row{border-top:1px dashed var(--edge)}
+.stwheel-row i{width:12px;height:12px;border-radius:4px}
+.stwheel-row .sb-risk {background:var(--st-risk)}
+.stwheel-row .sb-track{background:var(--st-track)}
+.stwheel-row .sb-done {background:var(--st-done)}
+.stwheel-lab{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stwheel-num{
+  font-size:16px;color:var(--ink);
+  font-variant-numeric:tabular-nums;min-width:22px;text-align:right;
+}
+.stwheel-pct{
+  font-size:12px;color:var(--ink-quiet);
+  font-variant-numeric:tabular-nums;min-width:34px;text-align:right;
+}
+
+/* ==========================================================
+   3. WHAT NEEDS YOU NOW
+   The tasks themselves, named, oldest first. A count tells you
+   there is a problem; this tells you which one.
+   ========================================================== */
+.dash-urgent{display:flex;flex-direction:column;overflow-y:auto}
+.urg-head{
+  margin:2px 0 4px;font-size:10.5px;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;
+  color:color-mix(in srgb, var(--ink-soft) 24%, var(--ink));
+}
+.urg-head span{
+  display:inline-block;margin-left:5px;padding:1px 6px;border-radius:999px;
+  background:color-mix(in srgb, var(--card) 84%, var(--ink));
+  color:var(--ink);font-size:10px;
+}
+.urg-head + .urg-row{border-top:none}
+.urg-row{
+  display:grid;grid-template-columns:9px minmax(0,1fr) auto auto;
+  align-items:center;gap:9px;padding:7px 0;font-size:13px;
+}
+.urg-row + .urg-row{border-top:1px dashed var(--edge)}
+.urg-row .dot{width:9px;height:9px}
+.urg-row .dot.s-risk {background:var(--st-risk)}
+.urg-row .dot.s-track{background:var(--st-track)}
+.urg-name{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.urg-pri{
+  font-size:10.5px;font-weight:700;letter-spacing:.04em;
+  padding:2px 7px;border-radius:6px;
+  background:color-mix(in srgb, var(--card) 88%, var(--ink));
+  color:var(--ink-quiet);
+}
+.urg-when{font-size:11.5px;white-space:nowrap;min-width:76px;text-align:right}
+.urg-when.s-risk {color:color-mix(in srgb, var(--st-risk)  34%, var(--ink))}
+.urg-when.s-track{color:color-mix(in srgb, var(--st-track) 30%, var(--ink))}
+.urg-more{
+  margin:8px 0 2px;font-size:12px;color:var(--ink-quiet);
+}
+.urg-head:not(:first-child){margin-top:14px}
+
+.urg-clear{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  gap:12px;text-align:left;
+}
+.urg-clear p{margin:0;font-size:13.5px;color:var(--ink-quiet);max-width:30ch}
+.urg-tick{
+  flex:none;width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb, var(--st-done) 22%, var(--card));
+  color:color-mix(in srgb, var(--st-done) 44%, var(--ink));
+  font-weight:700;font-size:15px;
+}
+
+.dash-foot{
+  margin:14px 0 0;padding-top:12px;flex:none;
+  border-top:1px solid var(--edge);
+  font-size:12.5px;line-height:1.5;color:var(--ink-quiet);
+}
+.dash-foot b{color:var(--ink)}
+
+/* ---------- the months list, capped so it cannot outgrow the
+     panel beside it ---------- */
+.dash-months{max-height:250px;overflow-y:auto;padding-right:2px}
+
+/* ==========================================================
+   4. THE BAR
+   One component, three bands. Used for the whole board, for each
+   priority, for each month, and again under every column head.
+   ========================================================== */
+.sbar{
+  display:flex;height:9px;border-radius:999px;overflow:hidden;
+  background:color-mix(in srgb, var(--card) 88%, var(--ink));
+  min-width:0;
+}
+.sbar.big{height:14px}
+.sbar.none{opacity:.5}
+.sbar i{display:block;height:100%;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.sbar .sb-risk {background:var(--st-risk)}
+.sbar .sb-track{background:var(--st-track)}
+.sbar .sb-done {background:var(--st-done)}
+
+/* a labelled row: what it is, how it is going, how far along */
+.bar-row{
+  display:grid;grid-template-columns:88px minmax(0,1fr) 44px;
+  align-items:center;gap:11px;padding:6px 0;
+}
+.bar-row + .bar-row{border-top:1px dashed var(--edge)}
+.bar-lab{
+  font-size:12.5px;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.bar-num{
+  font-size:12px;text-align:right;color:var(--ink-quiet);
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:420px){
+  .bar-row{grid-template-columns:70px minmax(0,1fr) 40px;gap:8px}
+}
+
+/* ==========================================================
+   5. THE STATE CHIP ON A CARD
+   The card's colour is never the only thing saying how a task is
+   doing — this says it in words, and it replaced a chip that
+   only repeated the status dropdown two rows above it.
+   ========================================================== */
+.status.st-risk {background:color-mix(in srgb, var(--card) 84%, var(--st-risk));
+                 color:color-mix(in srgb, var(--st-risk) 30%, var(--ink));
+                 border-color:color-mix(in srgb, var(--card) 62%, var(--st-risk))}
+.status.st-track{background:color-mix(in srgb, var(--card) 84%, var(--st-track));
+                 color:color-mix(in srgb, var(--st-track) 26%, var(--ink));
+                 border-color:color-mix(in srgb, var(--card) 62%, var(--st-track))}
+.status.st-done {background:color-mix(in srgb, var(--card) 84%, var(--st-done));
+                 color:color-mix(in srgb, var(--st-done) 30%, var(--ink));
+                 border-color:color-mix(in srgb, var(--card) 62%, var(--st-done))}
+
+/* ==========================================================
+   6. THE TASK CARDS
+   A mild wash of the state's colour, and a firmer edge down the
+   left in the same hue — the edge is what makes a column
+   scannable at a glance, and it survives being printed in grey.
+   ========================================================== */
+body[class] .task-card{
+  border-left:4px solid transparent;
+  transition:background .2s ease,border-color .2s ease,
+             transform .18s ease,box-shadow .18s ease;
+}
+body[class] .task-card.t-risk{
+  background:color-mix(in srgb, var(--card) 85%, var(--st-risk));
+  border-color:color-mix(in srgb, var(--card) 66%, var(--st-risk));
+  border-left-color:var(--st-risk);
+}
+body[class] .task-card.t-track{
+  background:color-mix(in srgb, var(--card) 91%, var(--st-track));
+  border-color:color-mix(in srgb, var(--card) 66%, var(--st-track));
+  border-left-color:var(--st-track);
+}
+body[class] .task-card.t-done{
+  background:color-mix(in srgb, var(--card) 89%, var(--st-done));
+  border-color:color-mix(in srgb, var(--card) 68%, var(--st-done));
+  border-left-color:var(--st-done);
+}
+
+/* A finished card used to be faded to 62%, which made the one
+   thing you had achieved the hardest thing to read. The green and
+   the struck-through name already say it is done. */
+body[class] .task-card.is-done{opacity:1}
+.task-card.is-done .tc-name{text-decoration:line-through}
+.task-card.is-done .tc-note{opacity:.75}
+
+/* ==========================================================
+   7. THE PRIORITY COLUMNS
+   One colour for all three, at three strengths: Priority 1 the
+   firmest, Priority 3 the lightest. It is mixed towards the
+   theme's own ink rather than towards a hue, so the column stays
+   a cool, quiet ground and the warm state colours on the cards
+   sitting in it stay easy to pick out. The coloured edge along
+   the top is the page's own colour.
+   ========================================================== */
+body[class] .col{border-top:3px solid transparent}
+body[class] .col.pri-1{
+  background:color-mix(in srgb, var(--card) 88%, var(--ink));
+  border-top-color:var(--pg);
+}
+body[class] .col.pri-2{
+  background:color-mix(in srgb, var(--card) 93%, var(--ink));
+  border-top-color:color-mix(in srgb, var(--pg) 60%, var(--card));
+}
+body[class] .col.pri-3{
+  background:color-mix(in srgb, var(--card) 97%, var(--ink));
+  border-top-color:color-mix(in srgb, var(--pg) 30%, var(--card));
+}
+
+/* The head is the widest piece of a column you actually see — the
+   cards cover the rest — so that is where the priority colour has
+   to carry. Same colour as the column beneath it, two steps up. */
+body[class] .col .col-head{border-bottom-color:var(--edge)}
+body[class] .col.pri-1 .col-head{background:color-mix(in srgb, var(--card) 74%, var(--ink))}
+body[class] .col.pri-2 .col-head{background:color-mix(in srgb, var(--card) 84%, var(--ink))}
+body[class] .col.pri-3 .col-head{background:color-mix(in srgb, var(--card) 92%, var(--ink))}
+
+/* the column's own bar, tucked under the head */
+.col > .sbar{
+  height:5px;border-radius:0;
+  background:color-mix(in srgb, var(--card) 78%, var(--ink));
+}
+
+/* the cards need a little more room from a tinted wall */
+.col-body{padding:14px 13px}
+
+/* ==========================================================
+   8. THE BOTTOM ROW OF A CARD
+   Due date on the left; how it is doing and which priority it
+   is on the right. Grouped, so when the card is narrow the two
+   of them wrap together instead of the priority picker dropping
+   onto a line of its own.
+   ========================================================== */
+.tc-meta{
+  margin-left:auto;
+  display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.tc-bot{row-gap:7px}
+
+/* The column heads carry a tint now, so the line under the title
+   needs a firmer ink than the ordinary muted grey to stay clear of
+   4.5:1 on the darkest of the three. */
+body[class] .col .col-head p{color:color-mix(in srgb, var(--ink-soft) 30%, var(--ink))}
+
+/* the drag handle sits on a tinted card rather than a white one */
+body[class] .task-card .grip{color:color-mix(in srgb, var(--ink) 74%, var(--card))}
+body[class] .task-card:hover .grip{color:var(--ink)}
+
+/* ==========================================================
+   9. PRINTING
+   The ring and the bars are the point of the overview, so they
+   have to survive a printer that drops background colours.
+   ========================================================== */
+@media print{
+  .sbar,.sbar i,.stwheel-row i,.urg-row .dot{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .dash-grid{display:block}
+  .dash-panel{margin-bottom:10px;break-inside:avoid;min-height:0}
+  .dash-months,.dash-urgent{max-height:none;overflow:visible}
+  .task-card{break-inside:avoid}
+}

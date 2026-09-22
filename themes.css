@@ -511,14 +511,13 @@ body:is(.theme-dark,.theme-digital,.theme-city){
   --edge:rgba(255,255,255,.13);
 }
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.topbar,.sidebar){
-  background:rgba(8,12,22,.72);border-color:var(--edge)}
+  background:#0b1120;border-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.burger,.btn,.go-btn,.editnote,
   select.status-sel,.mini-sel,.head-chip,.task){
   background:var(--surf-2);border-color:var(--edge);color:var(--ink)}
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.panel,.tile,.col,.lead,
   .tcard,.pcard,.task-card,details.past){
-  background:rgba(255,255,255,.055);border-color:var(--edge);
-  backdrop-filter:blur(3px)}
+  background:#0d1524;border-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) .col-head{
   background:var(--surf-1);border-bottom-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.sb-link:hover,.task:hover,
@@ -531,7 +530,10 @@ body:is(.theme-dark,.theme-digital,.theme-city) :is(.banner .pill,.tcard .pills 
   background:var(--surf-2);border-color:var(--edge);color:var(--ink-soft)}
 body:is(.theme-dark,.theme-digital,.theme-city) .grid-table td{
   border-bottom-color:rgba(255,255,255,.09)}
-body:is(.theme-dark,.theme-digital,.theme-city) .empty{background:var(--surf-1)}
+/* .empty sits straight on the page, not inside a card, so a 5%
+   white film left its wording on the moving scene behind. */
+body:is(.theme-dark,.theme-digital,.theme-city) .empty{
+  background:var(--s0);border-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) [data-edit]:hover{
   background:var(--surf-2);box-shadow:0 0 0 3px var(--surf-1)}
 body:is(.theme-dark,.theme-digital,.theme-city) [data-edit]:focus{
@@ -543,7 +545,7 @@ body:is(.theme-dark,.theme-digital,.theme-city) :is(.status,.chip){
 
 /* Military and Indian music keep light cards, but their chrome is dark */
 body:is(.theme-military,.theme-indianmusic) :is(.topbar,.sidebar){
-  background:rgba(20,16,8,.55);border-color:rgba(255,255,255,.14)}
+  background:#191408;border-color:rgba(255,255,255,.14)}
 body:is(.theme-military,.theme-indianmusic) .sb-link{color:#f4efe0}
 body:is(.theme-military,.theme-indianmusic) .sb-link:hover{background:rgba(255,255,255,.14)}
 body:is(.theme-military,.theme-indianmusic) .sb-link.active{background:rgba(255,255,255,.20)}
@@ -557,7 +559,7 @@ body:is(.theme-military,.theme-indianmusic) .brand{color:#f6f0e2}
 
 /* 1. The toolbar was still painting itself white on dark grounds. */
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.toolbar,.filters){
-  background:rgba(9,14,24,.72);border-color:var(--edge)}
+  background:#0d1524;border-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) .f-search{
   background:var(--surf-2);border-color:var(--edge);color:var(--ink)}
 
@@ -565,11 +567,11 @@ body:is(.theme-dark,.theme-digital,.theme-city) .f-search{
       A dark ground under the same borders keeps the mood and the words. */
 body:is(.theme-dark,.theme-digital,.theme-city) :is(.panel,.tile,.col,.lead,
   .tcard,.pcard,.task-card,details.past){
-  background:rgba(9,14,24,.80);backdrop-filter:blur(6px)}
+  background:#0d1524}
 body.theme-digital :is(.panel,.tile,.col,.lead,.tcard,.pcard,.task-card,details.past){
-  background:rgba(4,20,28,.84)}
+  background:#062430}
 body.theme-city :is(.panel,.tile,.col,.lead,.tcard,.pcard,.task-card,details.past){
-  background:rgba(16,20,34,.82)}
+  background:#141a2c}
 
 /* 3. The sidebar heading is dark ink, which vanished on the dark chrome. */
 body:is(.theme-military,.theme-indianmusic) .sb-head{
@@ -587,15 +589,25 @@ body.theme-home .t-plant{left:auto;right:3%}
 body.theme-home .t-lampcone{right:22%}
 
 /* 5. The page banner carries its own bright forest wash and its own
-      little treeline. On a dark ground that reads as a hole in the page. */
+      little treeline. On a dark ground that reads as a hole in the page.
+
+      It used to be a sheer white film — 10% at the top, 3% at the
+      bottom — so the words in it actually sat on the moving scene
+      behind, and the heading crossed the moon. It is the theme's own
+      card colour now, with the same sheen top to bottom, so the
+      banner still lifts off the page and the text has a ground. */
 body:is(.theme-dark,.theme-digital,.theme-city) .banner{
-  background:linear-gradient(170deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.05) 60%,
-             rgba(255,255,255,.03) 100%);
+  background:linear-gradient(170deg,
+    color-mix(in srgb, var(--card) 86%, #fff) 0%,
+    var(--card) 58%,
+    color-mix(in srgb, var(--card) 92%, #000) 100%);
   border-color:var(--edge)}
 body:is(.theme-dark,.theme-digital,.theme-city) .banner .trees{opacity:.10 !important;
   filter:brightness(.5) saturate(.4)}
 body:is(.theme-military,.theme-indianmusic) .banner{
-  background:linear-gradient(170deg,rgba(255,255,255,.90) 0%,rgba(255,248,236,.86) 100%)}
+  background:linear-gradient(170deg,
+    color-mix(in srgb, var(--card) 96%, #fff) 0%,
+    color-mix(in srgb, var(--card) 92%, var(--accent)) 100%)}
 
 /* 6. The military stencil was printing over the Settings link. */
 body.theme-military .t-stencil{left:calc(var(--rail) + 24px);bottom:14px}

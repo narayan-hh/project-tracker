@@ -35,6 +35,10 @@ Esc      close whatever is open
 
 MY TASKS
 --------
+The page opens with an overview, and the three priority columns
+are underneath it. Scroll past the overview and the list is
+exactly as it was.
+
 Each task has a month, a name, a note, a due date and a status.
 Statuses: Not started / In progress / Completed.
 
@@ -45,6 +49,75 @@ Statuses: Not started / In progress / Completed.
   - Completed tasks drop to the bottom of their column.
   - The filter bar searches, and narrows by month, status, or
     "Overdue" only.
+
+THE THREE COLOURS
+-----------------
+Every card, bar and figure on this page uses the same three:
+
+  GREEN   Completed        the status is Completed
+  AMBER   On track         still open, and not past its due date
+  ROSE    Needs attention  still open, and past its due date
+
+None of that is typed in. The status dropdown says what stage a
+task is at; the due date says whether it is in trouble; the
+colour is worked out from the two. Change either one and the
+card, the bars and the tiles all move together.
+
+A task with no due date counts as On track - nothing about it
+says it is late. The overview counts those separately, in the
+line under the meter, so they are not quietly forgotten.
+
+The colour is never the only thing saying how a task is doing:
+every card carries the words as well, on the chip at its foot.
+
+THE OVERVIEW
+------------
+Four figures across the top. Each one is a fact the wheel below
+does not already give you:
+
+  Tasks in all        with the open / done split under it
+  Overdue             and how late the oldest one is
+  Due within 7 days   and when the next one falls
+  With no due date    the ones that can never be flagged late
+
+Then four panels, each answering a different question, so that
+none of them repeats another:
+
+  How the board stands  the wheel - three wedges, the total in
+                        the middle, and each state's own count
+                        and share read off beside it
+  What needs you now    the tasks themselves, named, oldest
+                        first, with how late each one is
+  By priority           which priority is carrying the trouble
+  By month              which month the work is piling up in
+
+The wheel shows all three states at once. It is not a progress
+meter with a single headline percentage - every state carries
+its own figure, so nothing has to be judged by the size of a
+wedge.
+
+"What needs you now" lists three per group and says how many
+there are in the heading, so a shortened list never hides the
+size of the problem.
+
+The four figures are always the same size as one another, and
+the two panels in a row always stretch to the same height.
+
+Every bar under "By priority" and "By month" is the same
+three-band bar, worst first.
+
+The overview always counts EVERY task. It deliberately does not
+follow the filter bar underneath - that would make the numbers
+move as you searched. The list below is the one that filters.
+
+THE COLUMNS
+-----------
+The three priority columns share one colour at three strengths -
+Priority 1 the firmest, Priority 3 the lightest. It is a cool,
+quiet tint mixed from the theme's own text colour, chosen so it
+does not compete with the green, amber and rose on the cards
+sitting in it. The strip along the top of each column, and the
+thin bar under its heading, are the page's own colour.
 
 
 WEEKLY REVIEW
@@ -145,8 +218,19 @@ COLOURS
 -------
 style.css, at the top under :root
   --sky-1 / --sky-2 / --sky-3   the background
-  --leaf-1 .. --leaf-4          the forest greens
+  --card / --ink / --line       a surface, the text on it, a border
+  --accent                      the one bright colour
   --c1a / --c1b / --c1          card colour 1 (and so on up to c6)
+
+Everything else is worked out from those in legibility.css, so a
+change there moves the whole site. Each theme in themes.css sets
+its own --card / --ink / --line / --accent and the rest follows.
+
+One rule worth keeping: anything with words on it gets a solid
+background. Cards, panels, banners and the menu were part-
+transparent, so on some themes the scenery read straight through
+the text. They are opaque now; the forest still shows in the gaps
+between them, which is where it belongs.
 
 
 THE FILES
@@ -157,6 +241,13 @@ sections.css   the individual pages
 ambience.css   the forest, weather and animals
 enhance.css    toasts, windows, importer, review, filters
 themes.css     the twelve themes and their scenery
+legibility.css every colour derived from the theme, so all twelve
+               stay readable
+tools.css      the top bar, the Themes page, Ask, the KPI cards
+polish.css     loaded last - the quality pass: the layout classes,
+               spacing, touch targets, focus rings, empty states
+dashboard.css  the My Tasks overview, the three state colours, and
+               the priority columns
 
 ambience.js    draws the living forest
 data.js        what a task/goal/person is, saving, CSV reading
@@ -169,7 +260,9 @@ views2.js      newer My Tasks, Settings and Budget pages
 app.js         the menu, routing, and the original buttons
 actions2.js    the newer buttons, undo, drag and drop
 palette.js     the Ctrl+K jump box and shortcuts
-themes.js      the twelve theme buttons and what each scene draws
+themes.js      the twelve themes and what each scene draws
+sync.js        the Google Sheet panels and loading
+ask.js         the Ask panel
 
 backup-original/ holds the four files as they were before this
 upgrade, in case you ever want to go back.
@@ -189,6 +282,120 @@ Approved by     who approved it. Left blank it shows red as
 
 Every cell is editable in place - click and type. The table scrolls
 sideways on a narrow screen instead of squashing the columns.
+
+
+
+LOADING FROM YOUR GOOGLE SHEETS
+--------------------------------
+The Budget page can read your ESI budget spreadsheet directly, so
+you never retype an expense. Nothing about your Drive is shared
+with anyone: a small script lives inside your own spreadsheet, runs
+as you, and hands back only the ESI tab's rows.
+
+Setting it up, once:
+
+  1. Open your budget spreadsheet, then Extensions > Apps Script.
+  2. Paste in the whole of budget-sync.gs (it sits in this folder,
+     and is deliberately kept off GitHub because it holds the
+     password on line 13).
+  3. Run "checkSetup". It reports what it found and changes nothing.
+  4. Deploy > New deployment > Web app.
+       Execute as        : Me
+       Who has access    : Anyone
+     Copy the link it gives you. It ends in /exec.
+  5. On the Budget page, paste that link and the password from
+     line 13 into the Google Sheet box, and press
+     "Connect and load".
+
+After any edit to the script you MUST redeploy, or Google keeps
+serving the old copy:
+  Deploy > Manage deployments > the pencil > Version: New version
+  > Deploy.
+Forgetting this is the single most common reason the site says the
+password is wrong.
+
+Day to day:
+
+  - The sheet loads by itself every time you open the site.
+  - "Load from sheet now" fetches it again.
+  - "Test the link" asks the script to describe itself - which
+    version is live, and whether the password matched. Use it first
+    whenever something looks wrong.
+  - The sheet is the master copy. Every load replaces the expenses
+    shown here, so make your changes in the sheet.
+
+The link and the password are kept in this browser only. They are
+never written into any file, so they cannot reach GitHub.
+
+AND THE SAME FOR MY TASKS
+-------------------------
+The task list sits in a different spreadsheet, so it gets its own
+script and its own web app link. The password can be the same one.
+
+  1. Open the task spreadsheet, then Extensions > Apps Script.
+  2. Paste in the whole of tasks-sync.gs (also in this folder,
+     also kept off GitHub).
+  3. Run "checkSetup". It lists the priority groups it found and
+     the status words you actually use.
+  4. Deploy > New deployment > Web app, Execute as Me, access
+     Anyone. Copy the /exec link.
+  5. On My Tasks, paste the link and the password into the Google
+     Sheet box and press "Connect and load".
+
+How your sheet is read:
+
+  PO | Status | Remarks | P1 | Status | Remarks | P2 | Status | ...
+
+Each group of three is one priority column here - the first group
+becomes Priority 1, the second Priority 2, the third Priority 3.
+The task name comes from the first cell, Remarks becomes the note,
+and blank cells are skipped. Add a fourth group and it is picked up
+by itself.
+
+Your sheet's own status words are matched: "Done" becomes Completed,
+"On track" and "Need attention" both become In progress, and a blank
+cell means Not started. Because those two say more than "In progress"
+does, the sheet's word is kept at the front of the note - a card
+reads "Need attention - with Radha" rather than losing the warning.
+"At risk", "On hold", "WIP", "Ongoing" and "Closed" are understood
+too. Anything unrecognised is treated as not started.
+
+This script only ever reads. It adds no columns and writes nothing.
+Due dates are not in the sheet, so tasks arrive without one and the
+month is set to the current month.
+
+AND YOUR OWN KPIs
+-----------------
+Your portfolio is a third spreadsheet, so it gets a third script
+and a third link. Same password again.
+
+  1. Open your portfolio spreadsheet, then Extensions > Apps Script.
+  2. Paste in the whole of kpis-sync.gs.
+  3. Run "checkSetup". It lists the periods it found and how many
+     KPIs carry figures.
+  4. Deploy > New deployment > Web app, Execute as Me, access
+     Anyone. Copy the /exec link.
+  5. Go to Team Members > Narayan. The Google Sheet box sits just
+     above "Key goals & KPIs". Paste the link and password there.
+
+The box appears on your page only. Your team's KPIs come from their
+portfolio workbooks in the Portfolios folder, and are untouched by
+this.
+
+How your tab is read:
+
+  Workstream | KPI | April 2024 | May 2024 | ... | Q1 | ...
+
+Each month or quarter heading usually spans two narrower columns,
+a target and an achievement, named on the row underneath. That row
+is read when it is there; without it the first column is taken as
+the target. The year in the headings is ignored, so a template
+still saying 2024 works unchanged.
+
+A workstream written once and left blank down the rows below it
+carries on to those rows, the way it reads on the page.
+
+This script only ever reads. It adds no columns and writes nothing.
 
 
 THEMES

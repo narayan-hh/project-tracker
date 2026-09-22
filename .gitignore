@@ -1,6 +1,8 @@
 # Holds the shared token for the Apps Script budget endpoint.
 # Keep it off GitHub so the repo stays safe to publish.
 budget-sync.gs
+tasks-sync.gs
+kpis-sync.gs
 
 # Team members' portfolio workbooks — personal performance data.
 # This repo is public; these must never be committed.
@@ -9,3 +11,4 @@ Portfolios/
 
 # Generated KPI data for loading into the browser. Personal data — keep local.
 *.local.json
+*.local.js

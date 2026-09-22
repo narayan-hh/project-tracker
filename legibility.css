@@ -26,11 +26,11 @@
    whether the theme is light or dark.
    ========================================================== */
 body[class]{
-  --s0: color-mix(in srgb, var(--card) 78%, transparent);
-  --s1: color-mix(in srgb, var(--card) 94%, transparent);
+  --s0: color-mix(in srgb, var(--card) 97%, transparent);
+  --s1: var(--card);
   --s2: color-mix(in srgb, var(--card) 93%, var(--ink));
   --s3: color-mix(in srgb, var(--card) 86%, var(--ink));
-  --edge: color-mix(in srgb, var(--line) 88%, transparent);
+  --edge: var(--line);
 
   /* Muted text used to be a colour each theme picked by hand, and
      several of them picked one too close to their own card. Deriving
@@ -168,7 +168,7 @@ body[class]{
 
 .page .banner{
   background:linear-gradient(170deg,
-    color-mix(in srgb, var(--card) 92%, transparent) 0%,
+    var(--card) 0%,
     var(--pg-a) 46%,
     var(--pg-b) 100%);
   border-color:var(--edge);
@@ -177,7 +177,7 @@ body[class]{
 .banner .sub{color:var(--ink-quiet)}
 .banner .pill,.page .banner .pill{
   color:var(--pg);
-  background:color-mix(in srgb, var(--card) 88%, transparent);
+  background:var(--card);
   border-color:var(--pg-b);
 }
 
@@ -238,7 +238,7 @@ body[class] .btn.leaf:hover{filter:brightness(1.1)}
 body[class] .btn.primary{background:var(--accent);border-color:var(--accent);
   color:var(--card)}
 body[class] .btn.danger{
-  color:color-mix(in srgb, #c9748c 52%, var(--ink));
+  color:color-mix(in srgb, #c9748c 34%, var(--ink));
   border-color:color-mix(in srgb, #c9748c 40%, var(--line));
   background:var(--s1);
 }

@@ -69,20 +69,24 @@ function removeWithUndo(label, restore){
    Modal shell
    ========================================================== */
 let modalCloser = null;
+let modalReturn = null;    /* where focus was before the window opened */
 
 function openModal(title, bodyHtml, opts){
   opts = opts || {};
   closeModal();
+
+  modalReturn = document.activeElement;
 
   const wrap = document.createElement('div');
   wrap.className = 'modal-wrap';
   wrap.id = 'modal-wrap';
   wrap.innerHTML = `
     <div class="modal-back"></div>
-    <div class="modal ${opts.wide ? 'wide' : ''}" role="dialog" aria-modal="true">
+    <div class="modal ${opts.wide ? 'wide' : ''}" role="dialog" aria-modal="true"
+         aria-labelledby="modal-title">
       <header class="modal-head">
-        <h2>${esc(title)}</h2>
-        <button class="modal-x" aria-label="Close">&times;</button>
+        <h2 id="modal-title">${esc(title)}</h2>
+        <button class="modal-x" type="button" aria-label="Close this window">&times;</button>
       </header>
       <div class="modal-body">${bodyHtml}</div>
       ${opts.foot ? `<footer class="modal-foot">${opts.foot}</footer>` : ''}
@@ -94,8 +98,14 @@ function openModal(title, bodyHtml, opts){
   wrap.querySelector('.modal-back').onclick = closeModal;
   modalCloser = opts.onClose || null;
 
-  /* keep the keyboard inside the dialog */
-  const first = wrap.querySelector('input,select,textarea,button');
+  /* Put the keyboard where the work is. Close is the first control in
+     the markup, so focusing "the first thing" landed there every time;
+     the field, or the button that finishes the job, is what you want. */
+  const first = wrap.querySelector(
+      '.modal-body input,.modal-body select,.modal-body textarea,'
+    + '.modal-body [contenteditable],.modal-body .dropzone,'
+    + '.modal-foot .btn.go,.modal-foot .btn.green,.modal-foot button')
+    || wrap.querySelector('.modal-x');
   if(first) setTimeout(() => first.focus(), 90);
 
   return wrap;
@@ -106,6 +116,14 @@ function closeModal(){
   if(!w) return;
   w.classList.remove('in');
   setTimeout(() => w.remove(), 200);
+
+  /* send the keyboard back where it came from, so closing a window
+     does not drop you at the top of the page */
+  if(modalReturn && modalReturn.focus && document.contains(modalReturn)){
+    try{ modalReturn.focus(); }catch(e){}
+  }
+  modalReturn = null;
+
   if(modalCloser){ const f = modalCloser; modalCloser = null; f(); }
 }
 

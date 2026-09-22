@@ -63,6 +63,74 @@ const thisMonth = () => MONTHS[new Date().getMonth()];
 const taskStatus = v => TASK_STATUS.find(s => s.v === v) || TASK_STATUS[0];
 const goalStatus = v => GOAL_STATUS.find(s => s.v === v) || GOAL_STATUS[0];
 
+/* the four quarters and the months each one covers, so a quarter can
+   be worked out from its months when the sheet left the total blank */
+const KPI_QUARTERS = [
+  { k:'q1', label:'Q1', months:['apr','may','jun'] },
+  { k:'q2', label:'Q2', months:['jul','aug','sep'] },
+  { k:'q3', label:'Q3', months:['oct','nov','dec'] },
+  { k:'q4', label:'Q4', months:['jan','feb','mar'] }
+];
+
+/* '' and text both mean "no figure"; 0 is a real figure */
+function kpiNum(v){
+  if(v === '' || v == null) return null;
+  const n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
+  return isNaN(n) ? null : n;
+}
+
+/* one quarter's planned and achieved. The sheet's own quarter cell wins;
+   failing that the three months are added up. null means nothing given. */
+function kpiQuarter(k, q){
+  const cell = (k.periods && k.periods[q.k]) || {};
+  const out = {};
+  ['planned','achieved'].forEach(side => {
+    const own = kpiNum(cell[side]);
+    if(own !== null){ out[side] = own; return; }
+    let sum = null;
+    q.months.forEach(m => {
+      const v = kpiNum(((k.periods && k.periods[m]) || {})[side]);
+      if(v !== null) sum = (sum === null ? 0 : sum) + v;
+    });
+    out[side] = sum;
+  });
+  return out;
+}
+
+/* the whole year for one KPI, added up from its four quarters */
+function kpiRollup(k){
+  let planned = null, achieved = null;
+  const quarters = KPI_QUARTERS.map(q => {
+    const v = kpiQuarter(k, q);
+    if(v.planned  !== null) planned  = (planned  === null ? 0 : planned)  + v.planned;
+    if(v.achieved !== null) achieved = (achieved === null ? 0 : achieved) + v.achieved;
+    return { q, planned:v.planned, achieved:v.achieved };
+  });
+  const hasTarget = planned !== null && planned > 0;
+  const pct = hasTarget
+    ? Math.max(0, Math.min(100, Math.round((achieved || 0) / planned * 100)))
+    : ((achieved || 0) > 0 ? 100 : 0);
+  return { planned, achieved, quarters, hasTarget, pct };
+}
+
+/* a person's KPI standing. Only KPIs that actually carry a target are
+   counted, so a sheet with the text filled in but no figures — which is
+   how some portfolios arrive — does not drag the meter down to nothing. */
+function kpiProgress(p){
+  let counted = 0, sumPct = 0, planned = 0, achieved = 0;
+  (p.kpis || []).forEach(k => {
+    const r = kpiRollup(k);
+    if(!r.hasTarget) return;
+    counted++;
+    sumPct  += r.pct;
+    planned += r.planned;
+    achieved += (r.achieved || 0);
+  });
+  return { counted, planned, achieved,
+    pct: counted ? Math.round(sumPct / counted) : 0,
+    untargeted: (p.kpis || []).length - counted };
+}
+
 /* ---------- blank records ---------- */
 function blankCheckin(){
   return { id:uid('ci'), date:today(), done:false,
@@ -82,6 +150,77 @@ function blankKpiPeriods(){
 function blankKpi(name){
   return { id:uid('k'), area:'', name:name||'New KPI', note:'',
     periods: blankKpiPeriods() };
+}
+
+/* Build one KPI from a plain record in a data file or a backup.
+   Every period cell is copied out by value. Object.assign would hand
+   back the record's own cell objects, and then editing a figure in the
+   app would reach into KPI_SEED and change the data file's copy in
+   memory — which made a later refresh read back the edit as if it had
+   come from the sheet. */
+function kpiFrom(rec){
+  const k = blankKpi(rec && rec.name);
+  k.area = (rec && rec.area) || '';
+  k.note = (rec && rec.note) || '';
+  const src = (rec && rec.periods) || {};
+  KPI_PERIODS.forEach(per => {
+    const c = src[per.k] || {};
+    k.periods[per.k] = {
+      planned:  c.planned  == null ? '' : String(c.planned),
+      achieved: c.achieved == null ? '' : String(c.achieved)
+    };
+  });
+  return k;
+}
+
+/* ---------- seeding from kpi-data.local.js ----------
+   That file is optional: on the public site it is not there at all,
+   so KPI_SEED is undefined and this does nothing.
+
+   Locally it carries a `stamp` taken over the figures themselves. The
+   app remembers the last stamp it loaded, so re-reading a portfolio
+   sheet and regenerating the file makes the new figures appear on the
+   next refresh. Same stamp means same data, and nothing is touched —
+   so your own edits in the app survive any number of reloads.
+
+   When the stamp does change the sheet wins, because the portfolio
+   workbook is the record and the app is the view of it. */
+const nameKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g,'');
+
+function seedKpisFromFile(){
+  if(typeof KPI_SEED === 'undefined' || !KPI_SEED || !KPI_SEED.people) return null;
+
+  const stamp = KPI_SEED.stamp || 'unstamped';
+  if(DB.meta.kpiStamp === stamp) return null;
+  const first = !DB.meta.kpiStamp;
+
+  let loaded = 0, members = 0;
+  Object.keys(KPI_SEED.people).forEach(name => {
+    const list = KPI_SEED.people[name];
+    if(!Array.isArray(list) || !list.length) return;
+
+    /* the member by name, or a still-unused placeholder to rename,
+       or a new member if neither is there */
+    let p = DB.people.find(x => nameKey(x.name) === nameKey(name));
+    if(!p){
+      p = DB.people.find(x => /^teammate\d+$/.test(nameKey(x.name))
+                           && !(x.kpis || []).length
+                           && !(x.goals || []).length);
+      if(p) p.name = name;
+    }
+    if(!p){
+      p = blankPerson(name, (DB.people.length % 6) + 1);
+      DB.people.push(p);
+    }
+
+    p.kpis = list.map(kpiFrom);
+    loaded += p.kpis.length;
+    members++;
+  });
+
+  DB.meta.kpiStamp = stamp;
+  DB.meta.kpiSeeded = today();
+  return { loaded, members, first };
 }
 function blankPerson(name, palette){
   return {
@@ -238,7 +377,13 @@ const esc = s => String(s == null ? '' : s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const initial = n => (n || '?').trim().charAt(0).toUpperCase() || '?';
 
-/* how far along is this person? completed subtasks + achieved goals */
+/* How far along is this person?
+   Two pools feed the meter: goals (their subtasks, or the goal itself
+   when it has none) and KPIs (achieved against target). Each pool is
+   weighted by how many items it holds, so somebody carrying 21 KPIs
+   and no goals reads as their KPI standing, and somebody with both
+   gets a blend in proportion. `done` and `total` stay as they were —
+   they count goal items, which is what the labels beside them say. */
 function progressOf(p){
   let total = 0, done = 0;
   p.goals.forEach(g => {
@@ -250,7 +395,16 @@ function progressOf(p){
       if(g.status === 'done') done += 1;
     }
   });
-  return { total, done, pct: total ? Math.round(done/total*100) : 0 };
+
+  const kpi = kpiProgress(p);
+  const pools = [];
+  if(total)       pools.push({ pct: done / total * 100, w: total });
+  if(kpi.counted) pools.push({ pct: kpi.pct,            w: kpi.counted });
+
+  const w = pools.reduce((s,x) => s + x.w, 0);
+  const pct = w ? Math.round(pools.reduce((s,x) => s + x.pct * x.w, 0) / w) : 0;
+
+  return { total, done, pct, kpi };
 }
 
 /* tasks: not-started and in-progress first, completed sink to the bottom */

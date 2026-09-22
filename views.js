@@ -26,34 +26,40 @@ function trees(compact){
   const near = 'M0,200 L0,176 Q50,124 100,176 Q140,132 180,176 Q230,120 280,176 Q320,136 360,176 '
              + 'Q410,122 460,176 Q500,138 540,176 Q590,124 640,176 Q680,134 720,176 Q770,120 820,176 '
              + 'Q860,138 900,176 Q950,126 1000,176 Q1040,134 1080,176 Q1140,122 1200,176 L1200,200 Z';
-  const h = compact ? 130 : 200;
+  const h = compact ? 92 : 200;
   return layer('var(--tree-far)','far',far,h) + layer('var(--tree-mid)','mid',mid,h) + layer('var(--tree-near)','near',near,h);
 }
 function critters(compact){
   const ffs = (compact
-      ? [[18,52,0],[42,44,2.6],[68,58,4.4],[86,48,1.5]]
-      : [[12,72,0],[24,58,2.4],[38,80,4.1],[52,62,1.3],[66,76,5.2],[78,55,3.0],[88,70,6.4],[46,45,2.0]]
+      ? [[22,52,0],[58,46,2.6],[84,56,4.4]]
+      : [[12,72,0],[30,58,2.4],[52,62,1.3],[70,76,5.2],[88,52,3.0]]
     ).map(([l,t,d]) => `<i class="firefly" style="left:${l}%;top:${t}%;animation-delay:${d}s,${d/2}s"></i>`).join('');
   const leafSvg = c => `<svg width="14" height="14" viewBox="0 0 24 24" fill="${c}">
       <path d="M21 3C10 3 3 9 3 18c0 1 0 2 .3 3 1-6 5-10 11-12-4 3-7 6-8 12 8 1 14-4 14-13V3z"/></svg>`;
   const leaves = (compact
-      ? [[22,14,1,'#8fc3a6'],[58,16,5,'#b6cf95'],[86,15,3,'#93c9ad']]
-      : [[10,13,0,'#7cbb98'],[28,16,3,'#a8cf8e'],[45,15,6,'#8fc3a6'],
-         [63,17,9,'#c2b78a'],[80,14,4.5,'#93c9ad'],[92,18,7.5,'#b6cf95']]
+      ? [[26,15,1,'#8fc3a6'],[74,16,5,'#b6cf95']]
+      : [[14,14,0,'#7cbb98'],[42,16,3,'#a8cf8e'],[68,15,6,'#8fc3a6'],
+         [88,17,9,'#c2b78a']]
     ).map(([l,dur,delay,c]) =>
       `<span class="leaf" style="left:${l}%;animation-duration:${dur}s;animation-delay:${delay}s">${leafSvg(c)}</span>`).join('');
   return `<span class="mist m1"></span><span class="mist m2"></span>${ffs}${leaves}`;
 }
 const forest = compact => critters(compact) + trees(compact);
 
-const watermark = `<svg class="wm" width="96" height="96" viewBox="0 0 24 24" fill="currentColor">
+const watermark = `<svg class="wm" width="96" height="96" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
   <path d="M21 3C10 3 3 9 3 18c0 1 0 2 .3 3 1-6 5-10 11-12-4 3-7 6-8 12 8 1 14-4 14-13V3z"/></svg>`;
 
-const arrowBtn = label => `
-  <button class="go-btn">${label}
-    <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>
-  </button>`;
+const arrowSvg = `<span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+      focusable="false"><path d="M5 12h13M12 5l7 7-7 7"/></svg></span>`;
+
+/* A real button, for a card that is not itself a link. */
+const arrowBtn = label => `<button class="go-btn" type="button">${label}${arrowSvg}</button>`;
+
+/* The same thing to look at, but not a second control inside a
+   link. A <button> nested in an <a> is invalid and gives keyboard
+   and screen-reader users two stops for one destination. */
+const arrowTag = label => `<span class="go-btn" aria-hidden="true">${label}${arrowSvg}</span>`;
 
 /* page header banner used on every section.
    NOTE: buttons never go inside the banner — the animated forest art
@@ -81,103 +87,107 @@ function donut(pct, colour, size){
   const r = 46, c = 2 * Math.PI * r;
   const off = c * (1 - pct/100);
   return `
-  <svg class="donut" width="${size}" height="${size}" viewBox="0 0 120 120">
+  <svg class="donut" width="${size}" height="${size}" viewBox="0 0 120 120"
+       role="img" aria-label="${pct}% complete">
     <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--donut-track)" stroke-width="13"/>
     <circle cx="60" cy="60" r="${r}" fill="none" stroke="${colour}" stroke-width="13"
             stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"
             transform="rotate(-90 60 60)" class="donut-arc"/>
-    <text x="60" y="59" text-anchor="middle" font-size="25" font-weight="700" fill="var(--ink)">${pct}%</text>
-    <text x="60" y="78" text-anchor="middle" font-size="11" fill="var(--ink-quiet)">complete</text>
+    <text x="60" y="59" text-anchor="middle" font-size="25" font-weight="700" fill="var(--ink)"
+          aria-hidden="true">${pct}%</text>
+    <text x="60" y="78" text-anchor="middle" font-size="11" fill="var(--ink-quiet)"
+          aria-hidden="true">complete</text>
   </svg>`;
+}
+
+/* An empty section says what is missing and offers the one thing
+   you would want to do about it. */
+function emptyState(text, action){
+  return `<div class="empty"><p>${text}</p>${action || ''}</div>`;
+}
+
+/* A page that has nothing to show, usually because a link points
+   at something that has since been deleted. */
+function notFound(what){
+  return `<div class="section-head"><h2>Nothing to show</h2></div>`
+       + emptyState(what, `<a class="btn go" href="#/">Back to the home page</a>`);
 }
 
 /* status chips */
 const chip = s => `<span class="status ${s.cls}">${s.label}</span>`;
 
 /* ==========================================================
-   KPI TABLE
-   Laid out exactly like the portfolio sheet: one row per KPI,
-   then Planned / Achieved for each month with a quarter total
-   after every third month. It is wide by nature, so the whole
-   grid scrolls sideways inside its own box and the KPI column
-   stays pinned to the left while you scroll.
+   KPI CARDS
+   One card per KPI, the same shape as the goal cards. Each
+   carries a meter for the whole year and the four quarters
+   underneath; the achieved figure on a quarter is editable
+   in place, so there is no grid of months to wade through.
    ========================================================== */
-function kpiNum(v){
-  if(v === '' || v == null) return null;
-  const n = parseFloat(String(v).replace(/[^0-9.\-]/g,''));
-  return isNaN(n) ? null : n;
-}
 
-/* how a cell reads against its target: only judged when both
-   numbers are present, so a blank month is never called a miss */
-function kpiCellState(planned, achieved){
-  const p = kpiNum(planned), a = kpiNum(achieved);
-  if(a === null) return '';
-  if(p === null || p === 0) return a > 0 ? 'k-met' : '';
-  if(a >= p) return 'k-met';
-  if(a >= p * 0.6) return 'k-near';
+/* how a figure reads against its target. Only judged when the
+   achieved side has been filled in, so a blank quarter is never
+   reported as a miss. */
+function kpiState(planned, achieved){
+  if(achieved === null) return '';
+  if(planned === null || planned === 0) return achieved > 0 ? 'k-met' : '';
+  if(achieved >= planned) return 'k-met';
+  if(achieved >= planned * 0.6) return 'k-near';
   return 'k-miss';
 }
 
-function kpiTable(p, base){
+function kpiCards(p, base){
   if(!p.kpis.length){
-    return `<div class="empty">No KPIs yet. Use <b>+ Add KPI</b>, or bring them in
-            from a portfolio sheet with <b>Import</b>.</div>`;
+    return emptyState('No KPIs recorded for this member yet.',
+      `<button class="btn go" data-act="add-kpi" data-p="${p.id}">+ Add the first KPI</button>`);
   }
 
-  const head1 = KPI_PERIODS.map(per =>
-    `<th colspan="2" class="k-per k-${per.type}" title="${esc(per.full)}">${per.label}</th>`).join('');
-  const head2 = KPI_PERIODS.map(per =>
-    `<th class="k-sub k-${per.type}" title="Target planned">P</th>`
-  + `<th class="k-sub k-${per.type}" title="Target achieved">A</th>`).join('');
+  return `<div class="kpi-grid">` + p.kpis.map((k,i) => {
+    const r = kpiRollup(k);
+    const state = kpiState(r.planned, r.achieved);
 
-  let lastArea = null;
-  const rows = p.kpis.map(k => {
-    /* repeat the area only when it changes, the way the sheet groups them */
-    const areaRow = (k.area && k.area !== lastArea)
-      ? `<tr class="k-arearow"><th colspan="${1 + KPI_PERIODS.length * 2}">${esc(k.area)}</th></tr>`
-      : '';
-    lastArea = k.area || lastArea;
-
-    const cells = KPI_PERIODS.map(per => {
-      const cell = k.periods[per.k] || { planned:'', achieved:'' };
-      const st = kpiCellState(cell.planned, cell.achieved);
-      const path = `${base}.kpis#${k.id}.periods.${per.k}`;
-      return `<td class="k-cell k-${per.type}">`
-           +   ed(`${path}.planned`, cell.planned, '-', 'span', 'k-p')
-           + `</td>`
-           + `<td class="k-cell k-${per.type} ${st}">`
-           +   ed(`${path}.achieved`, cell.achieved, '-', 'span', 'k-a')
-           + `</td>`;
+    const quarters = r.quarters.map(q => {
+      const qs = kpiState(q.planned, q.achieved);
+      const path = `${base}.kpis#${k.id}.periods.${q.q.k}.achieved`;
+      return `
+        <div class="kq ${qs}">
+          <span class="kq-lab">${q.q.label}</span>
+          <span class="kq-fig">
+            ${ed(path, q.achieved === null ? '' : q.achieved, '–', 'span', 'kq-a')}
+            <em>of ${q.planned === null ? '–' : q.planned}</em>
+          </span>
+        </div>`;
     }).join('');
 
-    return areaRow + `
-      <tr data-kpi="${k.id}">
-        <th class="k-name">
-          ${ed(`${base}.kpis#${k.id}.name`, k.name, 'What is the KPI?', 'div', 'k-text')}
-          ${k.note ? `<span class="k-note">${esc(k.note)}</span>` : ''}
-          <button class="x k-del" data-act="del-kpi" data-k="${k.id}" title="Remove this KPI">&times;</button>
-        </th>
-        ${cells}
-      </tr>`;
-  }).join('');
+    return `
+    <article class="kcard p${p.palette} reveal" data-kpi="${k.id}"
+             style="animation-delay:${Math.min(.04*i, .24).toFixed(2)}s">
+      ${watermark}
+      <div class="kcard-top">
+        ${k.area ? `<span class="kcard-area">${esc(k.area)}</span>` : ''}
+        <span class="spacer"></span>
+        ${r.hasTarget ? `<span class="kcard-pct ${state}">${r.pct}<em>%</em></span>` : ''}
+        <button class="x kcard-del" data-act="del-kpi" data-k="${k.id}"
+                title="Remove this KPI">&times;</button>
+      </div>
 
-  return `
-    <div class="kpi-wrap">
-      <table class="kpi-table">
-        <thead>
-          <tr><th class="k-name k-corner" rowspan="2">Key Performance Indicator</th>${head1}</tr>
-          <tr>${head2}</tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <p class="k-legend">
-      <span class="k-key k-met"></span> met or exceeded
-      <span class="k-key k-near"></span> within 60%
-      <span class="k-key k-miss"></span> short
-      <span class="muted">&nbsp; P = target planned, A = target achieved. Click any figure to edit it.</span>
-    </p>`;
+      ${ed(`${base}.kpis#${k.id}.name`, k.name, 'What is the KPI?', 'p', 'kcard-name')}
+      ${k.note ? `<p class="kcard-note">${esc(k.note)}</p>` : ''}
+
+      ${r.hasTarget ? `
+        <div class="kcard-meter" role="img"
+             aria-label="${r.achieved === null ? 0 : r.achieved} achieved of ${r.planned} planned">
+          <i class="${state}" style="width:${r.pct}%"></i>
+        </div>
+        <p class="kcard-sum"><b>${r.achieved === null ? 0 : r.achieved}</b>
+           achieved of <b>${r.planned}</b> planned for the year</p>`
+      : `<p class="kcard-sum none">No target figures in the sheet for this one</p>`}
+
+      ${/* four "0 of 0" boxes tell you nothing, so they only appear
+            once the KPI actually carries figures */''}
+      ${r.hasTarget || r.achieved !== null
+        ? `<div class="kcard-quarters">${quarters}</div>` : ''}
+    </article>`;
+  }).join('') + `</div>`;
 }
 const taskSelect = (path, v) =>
   `<select class="mini-sel" data-act="set-task-status" data-path="${path}">
@@ -215,7 +225,7 @@ function viewHome(){
         ${list.length ? list.map(t => `
           <div class="mini-row">
             <span class="dot ${taskStatus(t.status).cls}"></span>
-            <span class="t">${esc(t.name)}</span>
+            <span class="t" title="${esc(t.name)}">${esc(t.name)}</span>
             <span class="m">${esc(t.month)}</span>
           </div>`).join('')
         : `<p class="muted">Nothing open</p>`}
@@ -226,21 +236,21 @@ function viewHome(){
     const pg = progressOf(p);
     const open = p.checkins.filter(c => !c.done).length;
     return `
-    <a class="tcard p${p.palette} reveal" href="#/p/${p.id}" style="animation-delay:${.14 + i*.07}s">
+    <a class="tcard p${p.palette} reveal" href="#/p/${p.id}" style="animation-delay:${Math.min(.10 + i*.04, .30)}s">
       ${watermark}
       <div class="avatar">${esc(initial(p.name))}</div>
       <h3>${esc(p.name)}</h3>
       <p class="role">${esc(p.role)}</p>
       ${donut(pg.pct, `var(--c${p.palette})`, 96)}
       <p class="count">${p.goals.length} goals &middot; ${open} open check-in${open===1?'':'s'}</p>
-      ${arrowBtn('Open')}
+      ${arrowTag('Open')}
     </a>`;
   }).join('');
 
   return `
   <div class="page t-home">
     <!-- open sky: the title is lettered across it, not put in a card -->
-    <div class="sky-gap"></div>
+    <div class="sky-gap" aria-hidden="true"></div>
 
     ${toolbar(`
       <span class="tb-label">Quick add</span>
@@ -290,7 +300,7 @@ function viewHome(){
         ${dueSoon.length ? dueSoon.map(r => `
           <div class="mini-row">
             <span class="dot s-plan"></span>
-            <span class="t">${esc(r.title)}</span>
+            <span class="t" title="${esc(r.title)}">${esc(r.title)}</span>
             <span class="m">${esc(r.date)}</span>
           </div>`).join('') : `<p class="muted">No reminders yet.</p>`}
       </div>
@@ -375,7 +385,7 @@ function viewTeam(){
     const pg = progressOf(p);
     const open = p.checkins.filter(c => !c.done).length;
     return `
-    <a class="tcard p${p.palette} reveal" href="#/p/${p.id}" style="animation-delay:${.08 + i*.06}s">
+    <a class="tcard p${p.palette} reveal" href="#/p/${p.id}" style="animation-delay:${Math.min(.06 + i*.04, .30)}s">
       ${watermark}
       <div class="avatar">${esc(initial(p.name))}</div>
       <h3>${esc(p.name)}</h3>
@@ -384,9 +394,9 @@ function viewTeam(){
       <p class="count">${p.goals.length} goals &middot; ${pg.done}/${pg.total} done</p>
       <ul class="pills">
         <li>${open} open check-in${open===1?'':'s'}</li>
-        <li>${p.wins.length} wins</li>
+        ${p.wins.length ? `<li>${p.wins.length} win${p.wins.length===1?'':'s'}</li>` : ''}
       </ul>
-      ${arrowBtn('Open')}
+      ${arrowTag('Open')}
     </a>`;
   }).join('');
 
@@ -414,7 +424,7 @@ function viewTeam(){
    ========================================================== */
 function viewPerson(id){
   const p = person(id);
-  if(!p) return `<div class="page"><div class="empty">Not found. <a href="#/">Go home</a></div></div>`;
+  if(!p) return `<div class="page t-team">${notFound('That team member is not here any more.')}</div>`;
   const pg = progressOf(p);
   const open = openCheckin(p);
   const past = p.checkins.filter(c => c.done).reverse();
@@ -473,11 +483,11 @@ function viewPerson(id){
     const st = goalStatus(g.status);
     const dn = g.subtasks.filter(s => s.done).length;
     return `
-    <article class="pcard p${p.palette} reveal" style="animation-delay:${.06*i}s" data-goal="${g.id}">
+    <article class="pcard p${p.palette} reveal" style="animation-delay:${Math.min(.04*i, .24)}s" data-goal="${g.id}">
       ${watermark}
       <h3>${ed(`${base}.goals#${g.id}.name`, g.name, 'Goal / KPI name')}</h3>
       <p class="obj">${ed(`${base}.goals#${g.id}.objective`, g.objective, 'Add the objective')}</p>
-      <div class="foot" style="margin:0;padding:0;border:none">
+      <div class="card-foot">
         ${chip(st)}
         <span class="status">${dn}/${g.subtasks.length} subtasks</span>
         <span class="status">${g.comments.length} comments</span>
@@ -498,7 +508,8 @@ function viewPerson(id){
           <span class="when">${esc(w.date)}</span>
           <span class="txt" data-edit="${base}.${kind}#${w.id}.text" data-ph="${ph}"
                 contenteditable="true" spellcheck="false">${esc(w.text)}</span>
-          <button class="x" data-act="del-${kind}">&times;</button>
+          <button class="x" type="button" data-act="del-${kind}"
+                  aria-label="Remove this entry" title="Remove">&times;</button>
         </div>`).join('') : `<p class="muted">Nothing recorded yet.</p>`}
     </div>`;
 
@@ -515,39 +526,46 @@ function viewPerson(id){
           <p class="sub">${ed(`${base}.role`, p.role, 'Add role')}</p>
         </div>
         ${donut(pg.pct, `var(--c${p.palette})`, 104)}
+        <div class="stat"><b>${p.kpis.length}</b><span>KPIs</span></div>
+        <div class="stat"><b>${pg.kpi.counted ? pg.kpi.pct + '%' : '&ndash;'}</b><span>KPIs achieved</span></div>
         <div class="stat"><b>${p.goals.length}</b><span>goals</span></div>
         <div class="stat"><b>${past.length}</b><span>check-ins done</span></div>`
     })}
 
     ${toolbar(`
-      <button class="btn go" data-act="add-goal" data-p="${p.id}">+ Add goal / KPI</button>
-      <button class="btn" data-act="add-wins">+ Achievement</button>
+      <button class="btn go" data-act="add-wins">+ Record an achievement</button>
       <button class="btn" data-act="add-concerns">+ Area of improvement</button>
       <span class="spacer"></span>
       <span class="editnote">&#9998; Click any text to edit it</span>`)}
 
+    ${kpisSyncPanel(p)}
+
     <div class="section-head reveal" style="animation-delay:.06s">
+      <h2>Key goals &amp; KPIs <span class="muted">2026-27</span></h2>
+      <span class="spacer"></span>
+      <span class="muted">${pg.kpi.counted
+        ? `${pg.kpi.achieved} of ${pg.kpi.planned} across ${pg.kpi.counted} measured KPI${pg.kpi.counted === 1 ? '' : 's'}`
+        : `${p.kpis.length} KPI${p.kpis.length === 1 ? '' : 's'}`}${
+        pg.kpi.untargeted ? ` &middot; ${pg.kpi.untargeted} without targets` : ''}</span>
+      <button class="btn tiny" data-act="add-kpi" data-p="${p.id}">+ Add KPI</button>
+    </div>
+    ${kpiCards(p, base)}
+
+    <div class="section-head reveal">
       <h2>Check-in conversation</h2>
     </div>
     ${openCard}
     ${history}
 
     <div class="section-head reveal">
-      <h2>Key goals &amp; KPIs</h2>
+      <h2>Goals &amp; projects</h2>
       <span class="spacer"></span>
       <button class="btn tiny" data-act="import-here">&#8681; Import goals</button>
       <button class="btn green" data-act="add-goal" data-p="${p.id}">+ Add goal</button>
     </div>
     ${p.goals.length ? `<div class="proj-grid">${goals}</div>`
-      : `<div class="empty">No goals yet. Use <b>+ Add goal</b> to create one.</div>`}
-
-    <div class="section-head reveal">
-      <h2>KPIs &amp; targets <span class="muted">2026-27</span></h2>
-      <span class="spacer"></span>
-      <span class="muted">${p.kpis.length} KPI${p.kpis.length === 1 ? '' : 's'}</span>
-      <button class="btn tiny" data-act="add-kpi" data-p="${p.id}">+ Add KPI</button>
-    </div>
-    ${kpiTable(p, base)}
+      : emptyState('No goals or projects recorded for this member yet.',
+          `<button class="btn go" data-act="add-goal" data-p="${p.id}">+ Add the first goal</button>`)}
 
     <div class="section-head reveal"><h2>Performance record</h2></div>
     <div class="two">
@@ -570,7 +588,7 @@ function viewPerson(id){
 function viewGoal(pid, gid){
   const p = person(pid);
   const g = goalOf(p, gid);
-  if(!g) return `<div class="page"><div class="empty">Not found. <a href="#/">Go home</a></div></div>`;
+  if(!g) return `<div class="page t-team">${notFound('That goal is not here any more.')}</div>`;
   const base = `people#${p.id}.goals#${g.id}`;
   const st = goalStatus(g.status);
   const dn = g.subtasks.filter(s => s.done).length;
@@ -581,7 +599,8 @@ function viewGoal(pid, gid){
       <input type="checkbox" ${s.done?'checked':''} data-act="toggle-sub">
       <span class="txt" data-edit="${base}.subtasks#${s.id}.text" data-ph="Subtask"
             contenteditable="true" spellcheck="false">${esc(s.text)}</span>
-      <button class="x" data-act="del-sub">&times;</button>
+      <button class="x" type="button" data-act="del-sub"
+              aria-label="Remove this subtask" title="Remove">&times;</button>
     </div>`).join('');
 
   const comments = g.comments.map(c => `
@@ -589,7 +608,8 @@ function viewGoal(pid, gid){
       <span class="when">${esc(c.date)}</span>
       <span class="txt" data-edit="${base}.comments#${c.id}.text" data-ph="Comment"
             contenteditable="true" spellcheck="false">${esc(c.text)}</span>
-      <button class="x" data-act="del-comment">&times;</button>
+      <button class="x" type="button" data-act="del-comment"
+              aria-label="Remove this comment" title="Remove">&times;</button>
     </div>`).join('');
 
   return `
@@ -608,11 +628,8 @@ function viewGoal(pid, gid){
       <select class="status-sel" data-act="set-goal-status" data-path="${base}.status">
         ${GOAL_STATUS.map(s => `<option value="${s.v}" ${s.v===g.status?'selected':''}>${s.label}</option>`).join('')}
       </select>
-      <button class="btn go" data-act="add-sub">+ Add subtask</button>
-      <button class="btn" data-act="add-comment">+ Add comment</button>
-      <button class="btn" data-act="import-here">&#8681; Import subtasks</button>
       <span class="spacer"></span>
-      <button class="btn danger" data-act="del-goal">Delete goal</button>`)}
+      <button class="btn" data-act="import-here">&#8681; Import subtasks</button>`)}
 
     <div class="detail-grid reveal">
       <div class="panel">
@@ -625,7 +642,7 @@ function viewGoal(pid, gid){
           <label>Subtasks &mdash; ${dn} of ${g.subtasks.length} done</label>
           <div class="bar"><i style="width:${pct}%"></i></div>
           <div style="margin-top:12px">${subs || `<div class="empty" style="padding:18px">No subtasks yet.</div>`}</div>
-          <button class="btn" style="margin-top:10px" data-act="add-sub">+ Add subtask</button>
+          <button class="btn go" style="margin-top:10px" data-act="add-sub">+ Add subtask</button>
         </div>
       </div>
 
@@ -642,7 +659,7 @@ function viewGoal(pid, gid){
         <div class="field">
           <label>Comments</label>
           ${comments || `<p class="muted">No comments yet.</p>`}
-          <button class="btn" style="margin-top:10px" data-act="add-comment">+ Add comment</button>
+          <button class="btn go" style="margin-top:10px" data-act="add-comment">+ Add comment</button>
         </div>
         <div class="field">
           <label>Danger zone</label>
@@ -666,7 +683,8 @@ function viewReminders(){
     const late = !r.done && r.date && r.date < now;
     return `
     <tr class="${r.done?'is-done':''} ${late?'is-late':''}" data-rem="${r.id}">
-      <td><input type="checkbox" ${r.done?'checked':''} data-act="toggle-reminder"></td>
+      <td><input type="checkbox" ${r.done?'checked':''} data-act="toggle-reminder"
+                 aria-label="Mark \"${esc(r.title)}\" as done"></td>
       <td>${ed(`reminders#${r.id}.date`, r.date, 'YYYY-MM-DD')}</td>
       <td>${ed(`reminders#${r.id}.title`, r.title, 'What is it?')}</td>
       <td>${ed(`reminders#${r.id}.who`, r.who, 'Who?')}</td>
@@ -674,7 +692,8 @@ function viewReminders(){
       <td>${late?`<span class="status s-risk">Overdue</span>`
               :r.done?`<span class="status s-done">Done</span>`
               :`<span class="status s-plan">Pending</span>`}</td>
-      <td><button class="x" data-act="del-reminder">&times;</button></td>
+      <td><button class="x" type="button" data-act="del-reminder"
+              aria-label="Remove this reminder" title="Remove">&times;</button></td>
     </tr>`;
   }).join('');
 
@@ -694,12 +713,16 @@ function viewReminders(){
 
     <div class="panel reveal" style="padding:14px">
       ${list.length ? `
+      <p class="table-note">Scroll the table sideways to see every column.</p>
       <div class="table-wrap">
         <table class="grid-table">
-          <thead><tr><th></th><th>Date</th><th>Reminder</th><th>Who</th><th>Note</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th><span class="sr-only">Done</span></th><th>Date</th><th>Reminder</th>
+                     <th>Who</th><th>Note</th><th>Status</th>
+                     <th><span class="sr-only">Remove</span></th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-      </div>` : `<div class="empty">No reminders yet.</div>`}
+      </div>` : emptyState('No reminders yet.',
+        `<button class="btn go" data-act="add-reminder">+ Add your first reminder</button>`)}
     </div>
     <div class="foot">Changes save automatically</div>
   </div>`;
@@ -772,7 +795,8 @@ function viewBudget(){
         ${DB.budget.heads.map((h,i) => `
           <span class="head-chip">
             <span data-edit="budget.heads.${i}" data-ph="Head" contenteditable="true" spellcheck="false">${esc(h)}</span>
-            <button class="x" data-act="del-head" data-i="${i}">&times;</button>
+            <button class="x" type="button" data-act="del-head" data-i="${i}"
+                    aria-label="Remove this budget head" title="Remove">&times;</button>
           </span>`).join('')}
       </div>
     </div>

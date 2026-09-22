@@ -1,0 +1,445 @@
+/* ==========================================================
+   polish.css — loaded last.
+
+   What this file is for
+   ---------------------
+   A quality pass over the whole site: the layout classes the
+   markup asked for but nobody had written, spacing and touch
+   targets, honest hover states, and the accessibility pieces.
+
+   Nothing here changes what the pages say or where they live.
+   Every colour still comes from the theme tokens set up in
+   legibility.css, so all twelve themes move together.
+   ========================================================== */
+
+/* ==========================================================
+   1. THE TWO CLASSES THE MARKUP WAS ALREADY USING
+
+   .two wraps the paired check-in fields and the two
+   performance panels on a member's page. It was never defined,
+   so those pairs stacked full-width instead of sitting side by
+   side, and the page ran twice as long as it needed to.
+
+   .spacer pushes whatever follows it to the far end of a row.
+   It only had flex:1 inside five named parents, so the same
+   span did nothing inside a KPI card or a goal card — the
+   delete cross and the Open button ended up mid-row.
+   ========================================================== */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.two > .field{margin-top:0}
+.two > .field + .field{margin-top:0}
+@media(max-width:860px){
+  .two{grid-template-columns:1fr;gap:14px}
+}
+
+.spacer{flex:1 1 auto;min-width:0}
+
+/* ==========================================================
+   2. SECTION RHYTHM
+   Headings, banners and the rows under them now step down in
+   one consistent scale instead of five different margins.
+   ========================================================== */
+.page > .section-head{margin:24px 0 12px}
+.page > .section-head:first-child{margin-top:0}
+.section-head h2{line-height:1.3}
+.panel .section-head{padding:0;background:none;border:none}
+
+/* the banner sub-line and the crumb above it */
+.banner .sub{max-width:68ch}
+.banner-in{row-gap:12px}
+.crumb{display:inline-block}
+
+/* a page always ends with a little air before the closing line */
+.foot{margin-top:28px}
+
+/* ==========================================================
+   3. CARD FOOTERS
+   The goal card's own footer reused .foot, which legibility.css
+   turns into a bordered card of its own — so it had to be
+   cancelled with inline styles on every card. It has a name of
+   its own now, and lays its chips out properly.
+   ========================================================== */
+.card-foot{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-top:auto;padding-top:12px;
+}
+
+/* ==========================================================
+   4. HONEST AFFORDANCE
+   A card that is a link lifts under the pointer. A card that
+   only holds a button does not — it used to lift as well, which
+   read as clickable when it was not.
+   ========================================================== */
+a.tcard,a.tile,a.pcard{cursor:pointer}
+.pcard:hover{transform:none}
+a.pcard:hover{transform:translateY(-4px)}
+
+/* the arrow inside a card that is itself a link is decoration,
+   so it must not look or behave like a second button */
+span.go-btn{cursor:inherit}
+
+/* ==========================================================
+   5. BUTTONS AND TOUCH TARGETS
+   ========================================================== */
+.btn,.tbtn,.f-chip,.ask-chip,.go-btn{
+  min-height:34px;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn.tiny{min-height:28px}
+
+/* the small crosses that remove a row: a real target, and a
+   visible hover, rather than a bare glyph */
+.x{
+  min-width:28px;min-height:28px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:8px;
+}
+
+/* disabled means disabled, on every button */
+.btn:disabled,.tbtn:disabled,button:disabled{
+  opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;filter:none;
+}
+
+/* the KPI delete cross was invisible until hover, which left it
+   unreachable by touch and by keyboard */
+.kcard-del{opacity:.5}
+.kcard:hover .kcard-del,.kcard-del:focus-visible{opacity:1}
+
+@media(max-width:860px){
+  .btn,.tbtn,.f-chip{min-height:40px;padding-left:14px;padding-right:14px}
+  .btn.tiny{min-height:34px;font-size:12.5px;padding:6px 12px}
+  .x{min-width:38px;min-height:38px}
+  .mini-sel,select.status-sel{min-height:38px;font-size:13px;padding:6px 9px}
+  .sb-link{padding:12px}
+  .task input[type=checkbox],.grid-table input[type=checkbox]{width:20px;height:20px}
+  .toolbar{padding:10px 12px;gap:8px}
+}
+
+/* ==========================================================
+   6. THE TITLE ACROSS THE SKY
+   At 30px with wide letter-spacing the words were wider than a
+   phone, and the browser simply cut them off. They now scale
+   and the spacing closes up with them.
+   ========================================================== */
+.sky-title h1,.sky-title p{overflow-wrap:break-word}
+@media(max-width:760px){
+  .sky-title{top:9vh}
+  .sky-title h1{font-size:clamp(22px,7.4vw,40px);letter-spacing:.07em}
+  .sky-title p{font-size:10.5px;letter-spacing:.16em;margin-top:8px}
+}
+
+/* ==========================================================
+   7. TILES
+   Stat tiles keep one size instead of stretching to fill
+   whatever room is left when a page has only two of them.
+   ========================================================== */
+.tile{display:flex;flex-direction:column;justify-content:center;min-height:88px}
+.tile b{font-variant-numeric:tabular-nums}
+
+/* ==========================================================
+   8. WEEKLY REVIEW
+   The nine blocks used to be shown whether or not they held
+   anything, so six empty cards pushed the real work off screen.
+   Blocks with something in them come first now, and the quiet
+   ones are summed up in a single line at the end.
+   ========================================================== */
+.rv-allclear{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.rv-allclear .rv-tick{
+  flex:none;width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb, #3d9c73 22%, var(--card));
+  color:color-mix(in srgb, #1f7a55 40%, var(--ink));
+  font-weight:700;font-size:14px;
+}
+.rv-allclear .rv-names{flex:1;min-width:200px;font-size:13.5px;color:var(--ink-quiet)}
+.rv-allclear .rv-names b{color:var(--ink);font-weight:600}
+
+/* ==========================================================
+   9. EMPTY STATES
+   An empty section now offers the one thing you would want to
+   do there, instead of only saying that it is empty.
+   ========================================================== */
+.empty{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:26px 22px;line-height:1.5;
+}
+.empty p{margin:0}
+.empty .btn{margin-top:2px}
+.panel > .empty{border:none;background:none;padding:22px 0}
+
+/* ==========================================================
+   10. THE GOOGLE SHEET PANEL
+   Setting up a spreadsheet link is a once-ever job, so an
+   unconnected sheet folds down to a single line and stops
+   sitting between you and your tasks. A connected one stays
+   as it was.
+   ========================================================== */
+details.sync-setup{
+  background:var(--s1);border:1px solid var(--edge);
+  border-radius:14px;box-shadow:var(--shadow);
+  margin:0 0 16px;padding:11px 16px;
+}
+details.sync-setup > summary{
+  cursor:pointer;list-style:none;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  font-size:13.5px;color:var(--ink);
+}
+details.sync-setup > summary::-webkit-details-marker{display:none}
+details.sync-setup > summary::after{
+  content:"\25B8";color:var(--ink-quiet);margin-left:auto;
+  transition:transform .2s ease;
+}
+details.sync-setup[open] > summary::after{transform:rotate(90deg)}
+details.sync-setup[open]{padding-bottom:18px}
+details.sync-setup .sync-body{margin-top:14px}
+details.sync-setup > summary b{font-weight:600}
+details.sync-setup > summary .sync-state{margin-left:2px}
+
+/* ==========================================================
+   11. THE STORAGE WARNING
+   The bar is fixed to the bottom and the page area is shortened
+   by a fixed 92px to make room. On a narrow screen the wording
+   wraps to three lines and covered the last row of the page.
+   ========================================================== */
+.warnbar,.errbar{max-height:40vh;overflow-y:auto}
+@media(max-width:760px){
+  body.has-warn .shell{height:calc(100vh - var(--topbar-h) - 156px)}
+}
+
+/* ==========================================================
+   12. MOTION
+   Every card carried its own entry animation with a growing
+   delay, so the last card on a long page arrived half a second
+   after the first. The stagger is capped and the movement is
+   shorter — still a settle, no longer a queue.
+   ========================================================== */
+@keyframes revealUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.reveal{animation-duration:.42s}
+.pop{animation-duration:.26s}
+.view{animation-duration:.32s}
+
+/* one shared, gentler lift for everything that lifts */
+.tcard,.tile,.pcard,.kcard,.theme-card,.task-card{
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.tcard:hover{transform:translateY(-4px)}
+
+@media (prefers-reduced-motion: reduce){
+  .world,.foreground{opacity:.55}
+  .sky-title{transition:none}
+}
+
+/* ==========================================================
+   13. FOCUS
+   The outline was already there for links and buttons. Cards,
+   editable text and table rows need it too, and it has to sit
+   above the card it belongs to rather than under the next one.
+   ========================================================== */
+a:focus-visible,button:focus-visible,select:focus-visible,
+input:focus-visible,textarea:focus-visible,
+summary:focus-visible,[contenteditable]:focus-visible,[data-act]:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+  position:relative;z-index:3;
+}
+a.tcard:focus-visible,a.tile:focus-visible,.theme-card:focus-visible{
+  outline-offset:3px;
+}
+/* skip the doubled ring on editable text, which already gets one */
+[data-edit]:focus{outline:none}
+
+/* ==========================================================
+   14. TABLES
+   A wide table scrolls sideways inside its own box. That is
+   right, but it needs to be obvious that it does.
+   ========================================================== */
+.table-wrap{position:relative}
+.table-note{
+  display:none;font-size:11.5px;color:var(--ink-quiet);
+  margin:0 0 8px;
+}
+@media(max-width:900px){.table-note{display:block}}
+
+/* ==========================================================
+   15. LAST DETAILS
+   ========================================================== */
+/* numbers line up in every column that holds them */
+.grid-table .num,.kcard-sum b,.stat b,.ask-stat b{font-variant-numeric:tabular-nums}
+
+/* a long objective or task name must never push a card wider */
+.pcard h3,.pcard .obj,.tc-name,.tc-note,.kcard-name,.tcard h3{
+  overflow-wrap:break-word;min-width:0;
+}
+
+/* the watermark leaf sat under the Open button and the figures.
+   Still there, just quieter. */
+.wm{opacity:.07 !important}
+
+/* The action row wraps rather than stacking: five full-width buttons
+   made a taller block than the page they introduce. Dropping the
+   spacer is what stops the last button being pushed to its own line. */
+@media(max-width:520px){
+  .toolbar{gap:7px;padding:10px 11px}
+  .toolbar .spacer{display:none}
+  .toolbar .tb-label{flex-basis:100%;margin-bottom:0}
+}
+
+/* ==========================================================
+   16. TEXT FOR SCREEN READERS ONLY
+   Two table columns hold a checkbox and a remove button, so
+   they have no visible heading. They still need one.
+   ========================================================== */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* ==========================================================
+   17. PANEL HEADERS
+   A heading, then a spacer, then a small button. The button had
+   no flex rule of its own, so on a narrow column it stole width
+   from the heading and "Coming up" broke across two lines.
+   ========================================================== */
+.section-head{gap:10px}
+.section-head .btn,
+.section-head .rv-count,
+.section-head > .muted{flex:none}
+.section-head .btn{white-space:nowrap}
+.section-head h2{flex:0 1 auto;min-width:0}
+.section-head > span:not(.spacer){min-width:0}
+
+/* on a narrow column the heading keeps its size and the button
+   wraps under it of its own accord */
+@media(max-width:560px){
+  .section-head{align-items:center;row-gap:8px}
+}
+
+/* ==========================================================
+   18. THE ARROW IN A CARD FOOTER
+   Chips first, the way in last. When the row wraps the arrow
+   still belongs at the far end of its own line.
+   ========================================================== */
+.card-foot .go-btn{margin-left:auto}
+
+/* ==========================================================
+   19. A LINK THAT IS DRESSED AS A BUTTON
+
+   legibility.css stops card links coming out in browser-default
+   blue with:
+
+       #view a, .sidebar a, .topbar a { color: inherit }
+
+   That is an ID selector, so it outranks every class rule that
+   follows it — including the one that paints a button. Anything
+   written as <a class="btn"> therefore ignored its own colours
+   and inherited the surrounding text instead. On a plain .btn
+   that passed unnoticed; on a page-coloured .btn.go it meant
+   dark text on a dark button.
+
+   These rules put the button colours back, at a weight that
+   actually beats it.
+   ========================================================== */
+#view a.btn,.sidebar a.btn,.topbar a.btn{color:var(--ink)}
+#view a.btn.go,#view a.btn.green,#view a.btn.leaf,
+#view a.btn.primary{color:var(--card)}
+#view a.btn.danger{color:color-mix(in srgb, #c9748c 34%, var(--ink))}
+
+/* a breadcrumb is a link and should look like one */
+#view .crumb a{color:var(--pg);text-decoration:none}
+#view .crumb a:hover,#view .crumb a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+/* ==========================================================
+   20. NATIVE CONTROLS FOLLOW THE THEME
+
+   A date picker's calendar and a dropdown's list are drawn by
+   the browser, not by this stylesheet. On the three dark themes
+   they came up white-on-white until the page said which scheme
+   it is painted in.
+   ========================================================== */
+:root{color-scheme:light}
+body:is(.theme-dark,.theme-digital,.theme-city){color-scheme:dark}
+
+/* ==========================================================
+   21. SKIP TO THE CONTENT
+   Eight menu links stand between the top of the page and the
+   page itself. A keyboard user can now step over them.
+   ========================================================== */
+.skip{
+  position:absolute;left:12px;top:-60px;z-index:100;
+  font-family:inherit;cursor:pointer;
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--edge);border-radius:10px;
+  padding:9px 15px;font-size:13px;font-weight:600;text-decoration:none;
+  box-shadow:var(--lift);transition:top .16s ease;
+}
+.skip:focus{top:10px}
+#view:focus{outline:none}
+#view:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+
+/* ==========================================================
+   22. PRINTING
+   The spreadsheet-link panel is setup, not content.
+   ========================================================== */
+@media print{
+  details.sync-setup,.sync-panel,.skip,.table-note{display:none !important}
+  .rv-allclear{break-inside:avoid}
+  a[href^="#"]{text-decoration:none;color:inherit}
+}
+
+/* ==========================================================
+   23. GRID TRACKS THAT ACTUALLY HOLD THEIR SHARE
+
+   A bare "1fr" is minmax(auto, 1fr): the track will not shrink
+   below its own content. The home summary read 1.4fr 1fr 1fr,
+   but the first panel holds three columns of task names, so its
+   min-content pushed the other two down to a sliver and "Coming
+   up" broke across two lines. minmax(0, …) lets a track take
+   its share, and the text inside already ellipsises.
+   ========================================================== */
+.summary-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)}
+@media(max-width:1280px){.summary-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media(max-width:760px){.summary-grid{grid-template-columns:minmax(0,1fr)}}
+
+.detail-grid{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+@media(max-width:900px){.detail-grid{grid-template-columns:minmax(0,1fr)}}
+
+.cols{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:980px){.cols{grid-template-columns:minmax(0,1fr)}}
+
+/* three priority columns where there is room for three, two where
+   there is not — the panel decides, not the window width */
+.mini-cols{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}
+@media(max-width:620px){.mini-cols{grid-template-columns:minmax(0,1fr)}}
+
+.kcard-quarters{grid-template-columns:repeat(4,minmax(0,1fr))}
+.map-grid{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+
+/* ==========================================================
+   24. TILES AND REVIEW BLOCKS FILL THE ROW
+
+   auto-fill leaves the tracks nothing sits in standing, so a row
+   of four tiles ended with two tile-widths of nothing. auto-fit
+   collapses them and the tiles that are there share the row.
+   ========================================================== */
+.tiles{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.rv-grid{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+/* no breakpoint needed: at 170px minimum the tiles fall to two
+   across on a phone and one on the narrowest of them */
+
+/* a name that has been shortened to fit says so on hover */
+.mini-row .t[title]{cursor:help}
+
+/* ==========================================================
+   25. THE MIST INSIDE A BANNER, ON A DARK GROUND
+
+   Every banner carries two soft white mist bands from the
+   forest — 85% white, 150% of the banner wide, sitting right
+   where the heading is. On the light themes they read as depth
+   above the treeline. On the three dark ones they came out as a
+   bright smear straight through the title.
+
+   themes.css already dims the little treeline in the same
+   banners; the mist was missed.
+   ========================================================== */
+body:is(.theme-dark,.theme-digital,.theme-city) .banner .mist{opacity:.05}
+body:is(.theme-dark,.theme-digital,.theme-city) .banner .firefly{opacity:.5}

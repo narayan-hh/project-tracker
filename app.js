@@ -41,6 +41,10 @@ function showErrorBar(msg){
     <button class="wb-x" onclick="this.parentNode.remove()">&times;</button>`;
 }
 window.addEventListener('error', ev => {
+  /* A cross-origin <script> that fails gives us nothing but the
+     words "Script error." on line 0. The Google Sheet panel reports
+     those properly itself, so don't raise a scary bar over them. */
+  if(!ev.filename && !ev.lineno) return;
   showErrorBar((ev.message || 'Unknown error') + '  —  ' +
     String(ev.filename || '').split('/').pop() + ' line ' + ev.lineno);
 });
@@ -63,11 +67,15 @@ function renderSidebar(){
   const isOn = href => href === '#/' ? (hash === '#/' || hash === '') : hash.startsWith(href);
 
   const link = n => `
-    <a class="sb-link ${isOn(n.href)?'active':''}" href="${n.href}">
+    <a class="sb-link ${isOn(n.href)?'active':''}" href="${n.href}"
+       ${isOn(n.href) ? 'aria-current="page"' : ''}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${n.icon}"/></svg>
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true" focusable="false"><path d="${n.icon}"/></svg>
       ${n.label}
-      ${n.href === '#/review' && attentionCount() ? `<span class="sb-badge">${attentionCount()}</span>` : ''}
+      ${n.href === '#/review' && attentionCount()
+        ? `<span class="sb-badge" title="${attentionCount()} things need a look">${attentionCount()}<span class="sr-only"> things need a look</span></span>`
+        : ''}
     </a>`;
 
   document.getElementById('sidebar').innerHTML = `
@@ -75,13 +83,15 @@ function renderSidebar(){
       <h2>${esc(DB.meta.title)}</h2>
       <p>${esc(theLead().name)}</p>
     </div>
-    <nav class="sb-nav">
+    <nav class="sb-nav" aria-label="Sections">
       ${NAV.map(link).join('')}
     </nav>
     <div class="sb-foot">
-      <a class="sb-link ${isOn('#/settings')?'active':''}" href="#/settings">
+      <a class="sb-link ${isOn('#/settings')?'active':''}" href="#/settings"
+         ${isOn('#/settings') ? 'aria-current="page"' : ''}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.5-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4z"/></svg>
         Settings
@@ -91,17 +101,22 @@ function renderSidebar(){
 
 const isNarrow = () => window.matchMedia('(max-width:1024px)').matches;
 function toggleMenu(){
+  const burger = document.getElementById('burger');
   if(isNarrow()){
     const open = !document.getElementById('sidebar').classList.contains('open');
     document.getElementById('sidebar').classList.toggle('open', open);
     document.getElementById('scrim').classList.toggle('open', open);
+    if(burger) burger.setAttribute('aria-expanded', String(open));
   } else {
-    document.body.classList.toggle('rail-hidden');
+    const hidden = document.body.classList.toggle('rail-hidden');
+    if(burger) burger.setAttribute('aria-expanded', String(!hidden));
   }
 }
 function closeMenu(){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('open');
+  const burger = document.getElementById('burger');
+  if(burger && isNarrow()) burger.setAttribute('aria-expanded', 'false');
 }
 
 /* id of a record that was just created, so render can highlight it */
@@ -130,6 +145,7 @@ function render(){
   view.className = 'view';
   view.innerHTML = html;
   renderSidebar();
+  setPageTitle(h);
 
   const now = location.hash || '#/';
   if(now !== render._last){ render._last = now; view.scrollTop = 0; }
@@ -137,7 +153,7 @@ function render(){
   /* make a freshly added row obvious, wherever the sorting put it */
   if(flashId){
     const el = view.querySelector(
-      `[data-rem="${flashId}"],[data-entry="${flashId}"],[data-task="${flashId}"],[data-goal="${flashId}"]`);
+      `[data-rem="${flashId}"],[data-entry="${flashId}"],[data-task="${flashId}"],[data-goal="${flashId}"],[data-kpi="${flashId}"]`);
     if(el){
       el.classList.add('flash');
       el.scrollIntoView({ block:'center', behavior:'smooth' });
@@ -156,6 +172,27 @@ function render(){
   if(skyP) skyP.textContent = DB.meta.tagline || '';
 
   bindDragDrop(view);
+}
+
+/* ----------------------------------------------------------
+   The browser tab, so an open window and the back button both
+   say which page you are on rather than only the site name.
+   ---------------------------------------------------------- */
+const PAGE_NAMES = {
+  tasks:'My Tasks', review:'Weekly Review', team:'Team Members',
+  reminders:'Reminders', budget:'Budget', settings:'Settings', themes:'Themes'
+};
+function setPageTitle(h){
+  const site = DB.meta.title || 'Work Station';
+  let name = '';
+  if(h[0] === 'p'){
+    const p = person(h[1]);
+    const g = p && h[2] === 'g' ? goalOf(p, h[3]) : null;
+    name = g ? g.name + ' — ' + p.name : (p ? p.name : '');
+  } else if(h[0]){
+    name = PAGE_NAMES[h[0]] || '';
+  }
+  document.title = name ? name + ' — ' + site : site;
 }
 
 /* ----------------------------------------------------------
@@ -271,6 +308,7 @@ function runAction(a, act){
   if(!a) return;
   if(typeof themeAction === "function" && themeAction(a, act)) return;
   if(typeof extraAction === "function" && extraAction(a, act)) return;
+  if(a.indexOf("sheet-") === 0 && typeof syncAction === "function"){ syncAction(a, act); return; }
   const { pid, gid } = ctx();
 
   /* ---------- my tasks ---------- */
@@ -491,22 +529,19 @@ function runAction(a, act){
           toast('No people found in that file', {kind:'warn'}); return;
         }
 
-        const key = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g,'');
         let touched = 0, added = 0, total = 0;
 
         Object.keys(incoming).forEach(name => {
           const list = incoming[name];
           if(!Array.isArray(list)) return;
-          let p = DB.people.find(x => key(x.name) === key(name));
+          let p = DB.people.find(x => nameKey(x.name) === nameKey(name));
           if(!p){
             p = blankPerson(name, (DB.people.length % 6) + 1);
             DB.people.push(p); added++;
           }
-          p.kpis = list.map(k => Object.assign(blankKpi(k.name), {
-            area: k.area || '',
-            note: k.note || '',
-            periods: Object.assign(blankKpiPeriods(), k.periods || {})
-          }));
+          /* asked for deliberately from the file dialog, so this one does
+             replace what is there */
+          p.kpis = list.map(kpiFrom);
           touched++; total += p.kpis.length;
         });
 
@@ -655,6 +690,15 @@ function doImport(apply){
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("burger").addEventListener("click", toggleMenu);
 
+  /* Skip past the menu. A click here moves the keyboard into the page
+     rather than changing the address, which the router would read as
+     a page name. */
+  const skip = document.getElementById('skip');
+  if(skip) skip.addEventListener('click', () => {
+    const v = document.getElementById('view');
+    if(v){ v.focus(); v.scrollTop = 0; }
+  });
+
   /* the two tools in the top bar */
   const sBtn = document.getElementById("btn-search");
   const aBtn = document.getElementById("btn-ask");
@@ -673,7 +717,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   load();
   if(!STORAGE_OK) showStorageWarning();
+
+  /* pick up the local KPI figures, and any later change to them */
+  const seeded = seedKpisFromFile();
+  if(seeded && seeded.loaded){
+    save();
+    toast(seeded.loaded + ' KPIs for ' + seeded.members + ' members '
+        + (seeded.first ? 'loaded' : 'refreshed') + ' from the portfolio sheets');
+  }
+
   render();
+
+  /* if a Google Sheet is connected, freshen the budget in the background */
+  if(typeof sheetAutoPull === "function") sheetAutoPull();
 });
 
 window.addEventListener('hashchange', render);
