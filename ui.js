@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — small shared UI pieces
+   My Workstation — small shared UI pieces
    Toasts, undo, a modal, and a confirm box that matches
    the rest of the site instead of the browser's grey alert.
    ========================================================== */

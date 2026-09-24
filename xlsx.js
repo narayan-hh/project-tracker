@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — Excel (.xlsx) reader
+   My Workstation — Excel (.xlsx) reader
    ----------------------------------------------------------
    Reads a real Excel file with no outside library.
    An .xlsx file is a zip full of XML. The browser can unzip

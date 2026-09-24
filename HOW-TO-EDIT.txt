@@ -1,4 +1,4 @@
-WORK STATION
+MY WORKSTATION
 ===============
 A local website. Nothing is online. Open index.html to start.
 

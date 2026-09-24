@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — jump box and keyboard shortcuts
+   My Workstation — jump box and keyboard shortcuts
    ----------------------------------------------------------
    Press Ctrl+K (or just / ) and start typing. It searches
    every task, goal, member, reminder and expense you have,

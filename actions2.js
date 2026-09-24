@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — the newer button actions
+   My Workstation — the newer button actions
    ----------------------------------------------------------
    app.js calls extraAction() first. Anything handled here
    returns true and stops there. Everything else falls

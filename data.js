@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — data model, storage, import
+   My Workstation — data model, storage, import
    Everything is local. Nothing is sent anywhere.
    ========================================================== */
 
@@ -241,7 +241,7 @@ function seed(){
   me.goals = ['CTP','WLC','YLC','YLC Mysore','ESI Mysore','LSC'].map(blankGoal);
 
   return {
-    meta:{ title:'Work Station', tagline:'Projects and team at a glance' },
+    meta:{ title:'My Workstation', tagline:'Projects and team at a glance' },
     people:[ me, P('Teammate1',2), P('Teammate2',3), P('Teammate3',4),
              P('Teammate4',5), P('Teammate5',6) ],
     myTasks:[
@@ -305,9 +305,9 @@ function migrateOrSeed(){
 
 /* make sure every record has every field, whatever version it came from */
 function normalise(){
-  if(!DB.meta) DB.meta = { title:'Work Station', tagline:'' };
+  if(!DB.meta) DB.meta = { title:'My Workstation', tagline:'' };
   /* renamed: carry old saved data over to the new name */
-  if(DB.meta.title === 'Project Tracker') DB.meta.title = 'Work Station';
+  if(DB.meta.title === 'Project Tracker' || DB.meta.title === 'Work Station') DB.meta.title = 'My Workstation';
   if(!Array.isArray(DB.people)) DB.people = seed().people;
   if(!Array.isArray(DB.myTasks)) DB.myTasks = [];
   if(!Array.isArray(DB.reminders)) DB.reminders = [];

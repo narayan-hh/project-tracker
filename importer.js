@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — bring a spreadsheet into any section
+   My Workstation — bring a spreadsheet into any section
    ----------------------------------------------------------
    One window, opened from whichever page you are on, so the
    rows land in that section without you choosing a target.

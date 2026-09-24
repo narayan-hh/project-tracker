@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — Ask
+   My Workstation — Ask
    ----------------------------------------------------------
    One box you can put a plain question to, and it answers from
    what is already in the tracker.

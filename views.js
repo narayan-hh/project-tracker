@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — page rendering
+   My Workstation — page rendering
    ========================================================== */
 
 /* editable text bound to a data path */
@@ -873,7 +873,7 @@ August	Submit donor report	Not started	2"></textarea>
         <h3>Site details</h3>
         <div class="field">
           <label>Site title</label>
-          <div class="box" data-edit="meta.title" data-ph="Work Station"
+          <div class="box" data-edit="meta.title" data-ph="My Workstation"
                contenteditable="true" spellcheck="false">${esc(DB.meta.title)}</div>
         </div>
         <div class="field">

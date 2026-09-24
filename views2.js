@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — newer versions of two pages
+   My Workstation — newer versions of two pages
    ----------------------------------------------------------
    Loaded after views.js, so these replace the originals.
    Kept separate to make it obvious what has changed.
@@ -463,7 +463,7 @@ function viewSettings(){
         <h3>Site details</h3>
         <div class="field">
           <label>Site title</label>
-          <div class="box" data-edit="meta.title" data-ph="Work Station"
+          <div class="box" data-edit="meta.title" data-ph="My Workstation"
                contenteditable="true" spellcheck="false">${esc(DB.meta.title)}</div>
         </div>
         <div class="field">

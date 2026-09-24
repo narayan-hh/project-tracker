@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — router, actions, start-up
+   My Workstation — router, actions, start-up
    ========================================================== */
 
 /* ==========================================================
@@ -168,7 +168,7 @@ function render(){
   document.body.classList.toggle('home', onHome);
   const skyH = document.getElementById('sky-h1');
   const skyP = document.getElementById('sky-sub');
-  if(skyH) skyH.textContent = DB.meta.title || 'Work Station';
+  if(skyH) skyH.textContent = DB.meta.title || 'My Workstation';
   if(skyP) skyP.textContent = DB.meta.tagline || '';
 
   bindDragDrop(view);
@@ -183,7 +183,7 @@ const PAGE_NAMES = {
   reminders:'Reminders', budget:'Budget', settings:'Settings', themes:'Themes'
 };
 function setPageTitle(h){
-  const site = DB.meta.title || 'Work Station';
+  const site = DB.meta.title || 'My Workstation';
   let name = '';
   if(h[0] === 'p'){
     const p = person(h[1]);

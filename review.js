@@ -1,5 +1,5 @@
 /* ==========================================================
-   Work Station — Weekly Review
+   My Workstation — Weekly Review
    ----------------------------------------------------------
    The page a programme manager actually needs on a Monday:
    what moved, what slipped, who needs a conversation, and
