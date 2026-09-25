@@ -144,6 +144,7 @@ function kpiCards(p, base){
   return `<div class="kpi-grid">` + p.kpis.map((k,i) => {
     const r = kpiRollup(k);
     const state = kpiState(r.planned, r.achieved);
+    const st = KPI_STATUS[kpiStatus(k)];
 
     const quarters = r.quarters.map(q => {
       const qs = kpiState(q.planned, q.achieved);
@@ -164,6 +165,7 @@ function kpiCards(p, base){
       ${watermark}
       <div class="kcard-top">
         ${k.area ? `<span class="kcard-area">${esc(k.area)}</span>` : ''}
+        <span class="kstat ${st.cls}">${st.label}</span>
         <span class="spacer"></span>
         ${r.hasTarget ? `<span class="kcard-pct ${state}">${r.pct}<em>%</em></span>` : ''}
         <button class="x kcard-del" data-act="del-kpi" data-k="${k.id}"
@@ -380,6 +382,57 @@ function viewTasks(){
 /* ==========================================================
    TEAM — grid of members
    ========================================================== */
+/* "3 achieved · 2 on track · 1 behind", in that order */
+function kpiStatusLine(statuses){
+  return ['done','on','near','behind','later','none']
+    .filter(s => statuses[s])
+    .map(s => `<span class="${KPI_STATUS[s].cls}">${statuses[s]} ${KPI_STATUS[s].label.toLowerCase()}</span>`)
+    .join(' &middot; ');
+}
+
+/* one member's KPI meter: the share of the year's KPI targets achieved */
+function kpiBar(p){
+  const k = kpiProgress(p);
+  if(!p.kpis.length) return `<p class="tkpi none">No KPIs yet</p>`;
+  if(!k.counted) return `<p class="tkpi none">${p.kpis.length} KPIs &middot; no targets in the sheet</p>`;
+  const state = k.pct >= 100 ? 'k-met' : k.pct >= 60 ? 'k-near' : k.pct > 0 ? 'k-miss' : '';
+  return `
+    <div class="tkpi">
+      <div class="tkpi-top"><span>KPIs achieved</span><b>${k.pct}%</b></div>
+      <div class="kcard-meter" role="img" aria-label="${k.pct}% of KPI targets achieved">
+        <i class="${state}" style="width:${k.pct}%"></i>
+      </div>
+      <p class="tkpi-sub">${kpiStatusLine(k.statuses)}</p>
+    </div>`;
+}
+
+/* every member side by side, one bar each */
+function teamKpiBoard(){
+  const rows = DB.people.filter(p => p.kpis.length).map(p => {
+    const k = kpiProgress(p);
+    const state = k.pct >= 100 ? 'k-met' : k.pct >= 60 ? 'k-near' : k.pct > 0 ? 'k-miss' : '';
+    return `
+      <a class="kb-row" href="#/p/${p.id}">
+        <span class="kb-name">${esc(p.name)}</span>
+        <span class="kcard-meter kb-meter"><i class="${state}" style="width:${k.pct}%"></i></span>
+        <b class="kb-pct">${k.counted ? k.pct + '%' : '&ndash;'}</b>
+        <span class="kb-sub">${p.kpis.length} KPIs &middot; ${kpiStatusLine(k.statuses)}</span>
+      </a>`;
+  }).join('');
+  if(!rows) return '';
+  const when = DB.meta.kpiUpdated
+    ? ` &middot; read from the portfolio sheets ${esc(syncWhen(DB.meta.kpiUpdated))}` : '';
+  return `
+    <div class="panel reveal kpi-board">
+      <div class="section-head" style="margin:0 0 10px">
+        <h2>KPI progress <span class="muted">2026-27</span></h2>
+        <span class="spacer"></span>
+        <span class="muted">Share of each person's yearly targets achieved${when}</span>
+      </div>
+      ${rows}
+    </div>`;
+}
+
 function viewTeam(){
   const cards = DB.people.map((p,i) => {
     const pg = progressOf(p);
@@ -392,6 +445,7 @@ function viewTeam(){
       <p class="role">${esc(p.role)}${p.lead?' &middot; me':''}</p>
       ${donut(pg.pct, `var(--c${p.palette})`, 104)}
       <p class="count">${p.goals.length} goals &middot; ${pg.done}/${pg.total} done</p>
+      ${kpiBar(p)}
       <ul class="pills">
         <li>${open} open check-in${open===1?'':'s'}</li>
         ${p.wins.length ? `<li>${p.wins.length} win${p.wins.length===1?'':'s'}</li>` : ''}
@@ -413,6 +467,9 @@ function viewTeam(){
       <span class="spacer"></span>
       <button class="btn" data-act="import-here">&#8681; Import Excel / CSV</button>
       <button class="btn" data-act="export-here">&#8679; Export CSV</button>`)}
+
+    ${typeof kpiLockPanel === 'function' ? kpiLockPanel() : ''}
+    ${teamKpiBoard()}
 
     <div class="team-row">${cards}</div>
     <div class="foot">Changes save automatically</div>

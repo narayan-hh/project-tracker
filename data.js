@@ -113,12 +113,47 @@ function kpiRollup(k){
   return { planned, achieved, quarters, hasTarget, pct };
 }
 
+/* Where a KPI stands today. The year's total is judged against the
+   targets that have fallen due so far, so a yearly KPI half met in
+   September reads as on track rather than behind. */
+const FY_MONTHS = KPI_PERIODS.filter(p => p.type === 'month').map(p => p.k);
+function monthsDue(){
+  const m = new Date().getMonth();                 /* 0 = January */
+  return FY_MONTHS.slice(0, ((m + 9) % 12) + 1);   /* April is the first */
+}
+const KPI_STATUS = {
+  done:   { label:'Achieved',        cls:'k-met'  },
+  on:     { label:'On track',        cls:'k-met'  },
+  near:   { label:'Slightly behind', cls:'k-near' },
+  behind: { label:'Behind',          cls:'k-miss' },
+  later:  { label:'Not due yet',     cls:''       },
+  none:   { label:'No target',       cls:''       }
+};
+function kpiStatus(k){
+  const r = kpiRollup(k);
+  if(!r.hasTarget) return 'none';
+  if((r.achieved || 0) >= r.planned) return 'done';
+  let due = 0, got = 0;
+  monthsDue().forEach(m => {
+    const c = (k.periods && k.periods[m]) || {};
+    due += kpiNum(c.planned)  || 0;
+    got += kpiNum(c.achieved) || 0;
+  });
+  if(!due) return (r.achieved || 0) > 0 ? 'on' : 'later';
+  if(got >= due) return 'on';
+  if(got >= due * 0.6) return 'near';
+  return 'behind';
+}
+
 /* a person's KPI standing. Only KPIs that actually carry a target are
    counted, so a sheet with the text filled in but no figures — which is
    how some portfolios arrive — does not drag the meter down to nothing. */
 function kpiProgress(p){
   let counted = 0, sumPct = 0, planned = 0, achieved = 0;
+  const statuses = {};
   (p.kpis || []).forEach(k => {
+    const s = kpiStatus(k);
+    statuses[s] = (statuses[s] || 0) + 1;
     const r = kpiRollup(k);
     if(!r.hasTarget) return;
     counted++;
@@ -126,7 +161,7 @@ function kpiProgress(p){
     planned += r.planned;
     achieved += (r.achieved || 0);
   });
-  return { counted, planned, achieved,
+  return { counted, planned, achieved, statuses,
     pct: counted ? Math.round(sumPct / counted) : 0,
     untargeted: (p.kpis || []).length - counted };
 }
@@ -187,16 +222,21 @@ function kpiFrom(rec){
    workbook is the record and the app is the view of it. */
 const nameKey = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g,'');
 
-function seedKpisFromFile(){
-  if(typeof KPI_SEED === 'undefined' || !KPI_SEED || !KPI_SEED.people) return null;
+/* `from` is the locked file the GitHub workflow publishes, once
+   kpi-remote.js has opened it. Once that has loaded, the older local
+   file is left alone, or the two would take turns replacing each other. */
+function seedKpisFromFile(from){
+  const SEED = from || (DB.meta.kpiSource === 'remote' ? null
+             : (typeof KPI_SEED === 'undefined' ? null : KPI_SEED));
+  if(!SEED || !SEED.people) return null;
 
-  const stamp = KPI_SEED.stamp || 'unstamped';
+  const stamp = SEED.stamp || 'unstamped';
   if(DB.meta.kpiStamp === stamp) return null;
   const first = !DB.meta.kpiStamp;
 
   let loaded = 0, members = 0;
-  Object.keys(KPI_SEED.people).forEach(name => {
-    const list = KPI_SEED.people[name];
+  Object.keys(SEED.people).forEach(name => {
+    const list = SEED.people[name];
     if(!Array.isArray(list) || !list.length) return;
 
     /* the member by name, or a still-unused placeholder to rename,
@@ -220,6 +260,10 @@ function seedKpisFromFile(){
 
   DB.meta.kpiStamp = stamp;
   DB.meta.kpiSeeded = today();
+  if(from){
+    DB.meta.kpiSource = 'remote';
+    DB.meta.kpiUpdated = SEED.updated || '';
+  }
   return { loaded, members, first };
 }
 function blankPerson(name, palette){

@@ -730,6 +730,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* if a Google Sheet is connected, freshen the budget in the background */
   if(typeof sheetAutoPull === "function") sheetAutoPull();
+
+  /* and the team's KPIs, as published by the GitHub workflow */
+  if(typeof kpiRemoteLoad === "function") kpiRemoteLoad();
 });
 
 window.addEventListener('hashchange', render);
